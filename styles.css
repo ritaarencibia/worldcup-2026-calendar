@@ -134,6 +134,8 @@ input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 1rem;
 }
+/* Let the `hidden` attribute win over display:grid when a tab is inactive. */
+.standings[hidden] { display: none; }
 .standings-card {
   background: var(--panel); border: 1px solid var(--border);
   border-radius: var(--radius); padding: .8rem;
