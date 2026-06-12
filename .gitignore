@@ -1,0 +1,15 @@
+# Local design notes / specs — kept out of the public repo on purpose.
+local/
+
+# Source PDFs — the schedule data was already extracted into data/.
+*.pdf
+
+# macOS
+.DS_Store
+
+# JetBrains IDE
+.idea/
+
+# Python
+__pycache__/
+*.pyc

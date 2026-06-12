@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My World Cup 2026 Calendar</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <h1>🏆 My World Cup 2026 Calendar</h1>
+    <p class="tagline">
+      Only the matches you can actually watch — times shown in your timezone
+      (<span id="tz-label">CEST</span>).
+    </p>
+  </header>
+
+  <main>
+    <section class="controls" aria-label="Controls">
+      <div class="control-block">
+        <label class="block-label" for="team-search">Teams you follow</label>
+        <p class="hint">Type a name (e.g. <em>Fr</em> → France) and pick from the list.
+          Their matches are always kept, whatever the time.</p>
+        <div class="typeahead">
+          <input id="team-search" type="text" autocomplete="off"
+                 placeholder="Add a team…" aria-label="Search a team to follow" />
+          <ul id="suggestions" class="suggestions" role="listbox" hidden></ul>
+        </div>
+        <ul id="favorites" class="chips" aria-label="Followed teams"></ul>
+      </div>
+
+      <div class="control-block">
+        <span class="block-label">Sleep window</span>
+        <p class="hint">Matches that <strong>start</strong> in this window are dropped
+          (unless a followed team plays, or it's a weekend night with a big team).</p>
+        <div class="sleep-row">
+          <label>From <input id="sleep-start" type="time" value="00:00" /></label>
+          <label>to <input id="sleep-end" type="time" value="07:00" /></label>
+        </div>
+      </div>
+
+      <div class="control-block">
+        <span class="block-label">Show matches that are…</span>
+        <p class="hint">Tick any combination — a match appears if it passes
+          <strong>any</strong> ticked filter. Untick all to see every match.</p>
+        <ul class="filters">
+          <li><label class="switch">
+            <input id="filter-myteams" type="checkbox" />
+            <span>⭐ My teams <small>(any time)</small></span>
+          </label></li>
+          <li><label class="switch">
+            <input id="filter-goodhours" type="checkbox" />
+            <span>🌙 Good hours <small>(outside my sleep window)</small></span>
+          </label></li>
+          <li><label class="switch">
+            <input id="filter-knockouts" type="checkbox" />
+            <span>🏆 Key knockouts <small>(QF, semis, final, 3rd)</small></span>
+          </label></li>
+          <li><label class="switch">
+            <input id="filter-weekend" type="checkbox" />
+            <span>🎉 Weekend big-team rescue</span>
+          </label></li>
+        </ul>
+      </div>
+
+      <div class="control-block">
+        <span class="block-label">Export</span>
+        <div class="export-row">
+          <button id="export-ics" type="button" class="btn">⬇ Download .ics</button>
+          <span id="kept-count" class="kept-count"></span>
+        </div>
+      </div>
+    </section>
+
+    <div class="tabs">
+      <button id="tab-matches" type="button" class="tab active">Matches</button>
+      <button id="tab-standings" type="button" class="tab">Standings</button>
+      <span id="updated-at" class="updated-at"></span>
+    </div>
+
+    <section id="schedule" class="schedule" aria-live="polite"></section>
+    <section id="standings" class="standings" aria-live="polite" hidden></section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Static page · data snapshot from the official FIFA schedule · no account, no tracking.</p>
+  </footer>
+
+  <!-- Data is loaded as plain scripts so the page works via file:// too. -->
+  <script src="data/teams.js"></script>
+  <script src="data/matches.js"></script>
+  <!-- Live results: optional. If missing, the page still works (no scores/standings). -->
+  <script src="data/results.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
