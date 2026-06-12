@@ -196,6 +196,16 @@ function matchTitle(match) {
   return `${home} ${join} ${away}`;
 }
 
+function calLink(label, href) {
+  const a = document.createElement('a');
+  a.className = 'cal-link';
+  a.href = href;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  a.textContent = label;
+  return a;
+}
+
 function renderSchedule() {
   const visible = MATCHES.filter(isIncluded);
 
@@ -247,13 +257,8 @@ function renderSchedule() {
 
     const actions = document.createElement('div');
     actions.className = 'match-actions';
-    const gcal = document.createElement('a');
-    gcal.className = 'gcal-link';
-    gcal.href = googleCalendarUrl(match);
-    gcal.target = '_blank';
-    gcal.rel = 'noopener';
-    gcal.textContent = '+ Google';
-    actions.appendChild(gcal);
+    actions.appendChild(calLink('+ Google', googleCalendarUrl(match)));
+    actions.appendChild(calLink('+ Outlook', outlookCalendarUrl(match)));
 
     li.appendChild(time);
     li.appendChild(info);
@@ -442,6 +447,11 @@ function toICSStamp(date) {
   return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}Z$/, 'Z');
 }
 
+function isoZ(date) {
+  // YYYY-MM-DDTHH:MM:SSZ in UTC (for the Outlook deep link)
+  return date.toISOString().replace(/\.\d{3}Z$/, 'Z');
+}
+
 function eventTimes(match) {
   const start = new Date(match.kickoffUtc);
   const end = new Date(start.getTime() + 2 * 60 * 60 * 1000); // 2h (spec D2)
@@ -460,6 +470,22 @@ function googleCalendarUrl(match) {
     details: `${stage} · FIFA World Cup 2026 (match ${match.matchNumber})`,
   });
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
+
+function outlookCalendarUrl(match) {
+  // Microsoft 365 / work Outlook web compose deep link.
+  const { start, end } = eventTimes(match);
+  const stage = STAGE_LABELS[match.stage] + (match.group ? ` ${match.group}` : '');
+  const params = new URLSearchParams({
+    path: '/calendar/action/compose',
+    rru: 'addevent',
+    subject: `🏆 ${matchTitle(match)}`,
+    startdt: isoZ(start),
+    enddt: isoZ(end),
+    location: `${match.venue}, ${match.city}`,
+    body: `${stage} · FIFA World Cup 2026 (match ${match.matchNumber})`,
+  });
+  return `https://outlook.office.com/calendar/deeplink/compose?${params.toString()}`;
 }
 
 function buildICS(matches) {

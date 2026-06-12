@@ -171,12 +171,12 @@ input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 .match-info { display: flex; flex-direction: column; min-width: 0; }
 .match-title { font-weight: 600; }
 .match-meta { color: var(--muted); font-size: .8rem; }
-.match-actions { display: flex; align-items: center; }
-.gcal-link {
+.match-actions { display: flex; align-items: center; gap: .35rem; flex-wrap: wrap; justify-content: flex-end; }
+.cal-link {
   color: var(--accent); text-decoration: none; font-size: .82rem; font-weight: 600;
   border: 1px solid var(--border); border-radius: 8px; padding: .3rem .55rem; white-space: nowrap;
 }
-.gcal-link:hover { background: var(--panel-2); }
+.cal-link:hover { background: var(--panel-2); }
 
 .empty { color: var(--muted); text-align: center; padding: 2rem; }
 
