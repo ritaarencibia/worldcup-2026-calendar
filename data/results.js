@@ -615,5 +615,5 @@ window.RESULTS = {
       }
     ]
   },
-  "bracket": {}
+  "resolved": {}
 };
