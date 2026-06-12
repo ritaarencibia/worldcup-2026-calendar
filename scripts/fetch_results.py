@@ -10,9 +10,11 @@ Defensive by design: if any group fails to parse a valid 4-team standings table,
 the run aborts WITHOUT overwriting the existing data/results.js, so the site keeps
 serving the last good snapshot instead of going blank.
 
-Knockout bracket resolution is intentionally NOT done here yet: until the group
-stage ends (25 Jun 2026) the knockout article only has placeholders, so there is
-nothing real to parse or test. `bracket` is emitted as {} for now.
+Knockout resolution is best-effort: it reads the knockout-stage article and emits
+`resolved` (knockout matchNumber -> real team codes) for any match whose slots are
+already filled, plus knockout scores. Until the group stage ends (25 Jun 2026)
+those slots are placeholders, so `resolved` stays empty. Knockout parsing failures
+never abort the results/standings update.
 """
 import json
 import os
@@ -49,7 +51,8 @@ NAME_ALIASES = {
     "united states": "USA",
 }
 
-SCORE_RE = re.compile(r"^\s*(\d+)\s*[–\-−]\s*(\d+)\s*$")
+SCORE_RE = re.compile(r"(\d+)\s*[–\-−]\s*(\d+)")
+KNOCKOUT_TITLE = "2026_FIFA_World_Cup_knockout_stage"
 
 
 def normalize(name):
@@ -99,10 +102,66 @@ def fetch_html(title, max_retries=4):
 
 
 def parse_score(text):
-    m = SCORE_RE.match(text or "")
+    m = SCORE_RE.search(text or "")
     if not m:
         return None
     return int(m.group(1)), int(m.group(2))
+
+
+def parse_slot(text):
+    """Map a knockout slot label to our placeholder token.
+
+    'Winner Group E'        -> '1E'
+    'Runner-up Group F'     -> '2F'
+    '3rd Group A/B/C/D/F'   -> '3ABCDF'   (letters sorted, matching matches.json)
+    'Winner Match 73'       -> 'W73'
+    'Loser Match 101'       -> 'L101'
+    """
+    t = re.sub(r"\s+", " ", (text or "").replace("_", " ")).strip().lower()
+    m = re.match(r"winner match (\d+)", t)
+    if m:
+        return "W" + m.group(1)
+    m = re.match(r"loser match (\d+)", t)
+    if m:
+        return "L" + m.group(1)
+    m = re.match(r"winner group ([a-l])", t)
+    if m:
+        return "1" + m.group(1).upper()
+    m = re.match(r"runners?-?up group ([a-l])", t)
+    if m:
+        return "2" + m.group(1).upper()
+    if "3rd" in t or "third" in t:
+        tail = t.split("group", 1)[-1]
+        letters = re.findall(r"[a-l]", tail)
+        if letters:
+            return "3" + "".join(sorted(c.upper() for c in letters))
+    return None
+
+
+def knockout_numbers(fb, ko_index):
+    """Return (num_from_label, num_from_slots) for a knockout football box.
+
+    - num_from_label: the 'Match NN' shown in the score cell while unplayed.
+    - num_from_slots: derived from the slot heading id (stable once played).
+    Either may be None; they should agree when both are present.
+    """
+    num_label = None
+    score_el = fb.find(class_="fscore")
+    if score_el:
+        m = re.search(r"match\s*(\d+)", score_el.get_text(" ", strip=True), re.I)
+        if m:
+            num_label = int(m.group(1))
+
+    num_slots = None
+    for anc in [fb] + fb.find_parents():
+        ident = anc.get("id") or ""
+        if "_v_" in ident:
+            left, _, right = ident.partition("_v_")
+            s1, s2 = parse_slot(left), parse_slot(right)
+            if s1 and s2:
+                num_slots = ko_index.get(frozenset((s1, s2)))
+            break
+    return num_label, num_slots
 
 
 def cell_team_name(cell):
@@ -225,6 +284,42 @@ def main():
                 "status": "finished", "home": home_goals, "away": away_goals,
             }
 
+    # --- Knockout stage: resolved matchups + scores (best-effort, optional) ---
+    # Failures here must NOT abort the results/standings update.
+    resolved = {}
+    try:
+        time.sleep(1.0)
+        ko_soup = BeautifulSoup(fetch_html(KNOCKOUT_TITLE), "html.parser")
+        ko_index = {
+            frozenset((m["home"], m["away"])): m["matchNumber"]
+            for m in matches if m["stage"] != "group"
+        }
+        boxes = ko_soup.select(".footballbox")
+        mismatches = 0
+        for fb in boxes:
+            num_label, num_slots = knockout_numbers(fb, ko_index)
+            if num_label and num_slots and num_label != num_slots:
+                mismatches += 1
+            num = num_label or num_slots
+            if not num:
+                continue
+            home_el = fb.find(class_="fhome")
+            away_el = fb.find(class_="faway")
+            hc = name_to_code.get(normalize(home_el.get_text(" ", strip=True))) if home_el else None
+            ac = name_to_code.get(normalize(away_el.get_text(" ", strip=True))) if away_el else None
+            if hc and ac:  # both sides resolved to real teams
+                resolved[str(num)] = {"home": hc, "away": ac}
+            score_el = fb.find(class_="fscore")
+            goals = parse_score(score_el.get_text(" ", strip=True)) if score_el else None
+            if goals and hc and ac:  # only trust a knockout score once teams are known
+                results[str(num)] = {"status": "finished", "home": goals[0], "away": goals[1]}
+        print(f"Knockout: {len(boxes)} boxes, {len(resolved)} resolved, "
+              f"slot/label mismatches: {mismatches}")
+        if mismatches:
+            warnings.append(f"knockout: {mismatches} slot/label number mismatch(es)")
+    except Exception as exc:
+        warnings.append(f"knockout fetch/parse failed: {exc} (bracket left unresolved)")
+
     for w in warnings:
         print(f"WARN  {w}", file=sys.stderr)
 
@@ -238,7 +333,7 @@ def main():
     content = {
         "results": results,
         "standings": standings,
-        "bracket": {},  # filled once the group stage ends (see module docstring)
+        "resolved": resolved,  # knockout matchNumber -> real team codes (fills from 25 Jun)
     }
 
     finished = len(results)
@@ -254,7 +349,7 @@ def main():
     if os.path.exists(json_path):
         try:
             old = json.load(open(json_path, encoding="utf-8"))
-            old_content = {k: old.get(k, {}) for k in ("results", "standings", "bracket")}
+            old_content = {k: old.get(k, {}) for k in ("results", "standings", "resolved")}
             if old_content == content:
                 print("No content change; data files left untouched.")
                 return

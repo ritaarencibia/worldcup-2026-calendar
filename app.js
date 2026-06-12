@@ -31,17 +31,20 @@ const TEAM_BY_CODE = new Map(TEAMS.map((t) => [t.code, t]));
 const RESULTS = window.RESULTS || null;
 const RESULT_BY_NUMBER = (RESULTS && RESULTS.results) || {};
 const STANDINGS = (RESULTS && RESULTS.standings) || {};
-const BRACKET = (RESULTS && RESULTS.bracket) || {};
+const RESOLVED = (RESULTS && RESULTS.resolved) || {};
 
 function resultFor(match) {
   return RESULT_BY_NUMBER[String(match.matchNumber)] || null;
 }
 
-// Resolve a code-or-placeholder ("MEX", "1A", "W74") to a real team code if known.
-function resolveCode(codeOrPlaceholder) {
-  if (TEAM_BY_CODE.has(codeOrPlaceholder)) return codeOrPlaceholder;
-  const resolved = BRACKET[codeOrPlaceholder];
-  return resolved && TEAM_BY_CODE.has(resolved) ? resolved : null;
+// Knockout slots ("1A", "W74") resolve to real team codes once known; group
+// matches already carry real codes. Returns the codes to display for this match.
+function resolvedCodes(match) {
+  const r = RESOLVED[String(match.matchNumber)];
+  return {
+    home: (r && r.home) || match.home,
+    away: (r && r.away) || match.away,
+  };
 }
 
 // ---- Preferences (persisted in localStorage) -------------------------------
@@ -178,16 +181,16 @@ function isIncluded(match) {
 }
 
 // ---- Rendering -------------------------------------------------------------
-function teamDisplay(codeOrPlaceholder, fallbackLabel) {
-  const code = resolveCode(codeOrPlaceholder);
-  const team = code && TEAM_BY_CODE.get(code);
+function teamDisplay(code, fallbackLabel) {
+  const team = TEAM_BY_CODE.get(code);
   if (team) return `${team.flag} ${team.name}`;
   return fallbackLabel; // unresolved knockout placeholder like "1A" / "W74"
 }
 
 function matchTitle(match) {
-  const home = teamDisplay(match.home, match.homeLabel);
-  const away = teamDisplay(match.away, match.awayLabel);
+  const codes = resolvedCodes(match);
+  const home = teamDisplay(codes.home, match.homeLabel);
+  const away = teamDisplay(codes.away, match.awayLabel);
   const r = resultFor(match);
   const join = r && r.status === 'finished' ? `${r.home}–${r.away}` : 'vs';
   return `${home} ${join} ${away}`;
