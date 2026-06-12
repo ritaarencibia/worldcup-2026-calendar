@@ -175,6 +175,7 @@ input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 .cal-link {
   color: var(--accent); text-decoration: none; font-size: .82rem; font-weight: 600;
   border: 1px solid var(--border); border-radius: 8px; padding: .3rem .55rem; white-space: nowrap;
+  background: none; cursor: pointer; font-family: inherit; line-height: 1.2;
 }
 .cal-link:hover { background: var(--panel-2); }
 

@@ -259,6 +259,13 @@ function renderSchedule() {
     actions.className = 'match-actions';
     actions.appendChild(calLink('+ Google', googleCalendarUrl(match)));
     actions.appendChild(calLink('+ Outlook', outlookCalendarUrl(match)));
+    const icsBtn = document.createElement('button');
+    icsBtn.type = 'button';
+    icsBtn.className = 'cal-link';
+    icsBtn.textContent = '⬇ .ics';
+    icsBtn.title = 'Download this match (.ics)';
+    icsBtn.addEventListener('click', () => downloadMatchICS(match));
+    actions.appendChild(icsBtn);
 
     li.appendChild(time);
     li.appendChild(info);
@@ -519,18 +526,24 @@ function icsEscape(str) {
   return str.replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
 }
 
-function downloadICS() {
-  const kept = MATCHES.filter(isIncluded);
-  const ics = buildICS(kept);
-  const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+function downloadICSFile(matches, filename) {
+  const blob = new Blob([buildICS(matches)], { type: 'text/calendar;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'my-world-cup-2026.ics';
+  a.download = filename;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+function downloadAllICS() {
+  downloadICSFile(MATCHES.filter(isIncluded), 'my-world-cup-2026.ics');
+}
+
+function downloadMatchICS(match) {
+  downloadICSFile([match], `wc2026-match-${match.matchNumber}.ics`);
 }
 
 // ---- Wiring ----------------------------------------------------------------
@@ -577,7 +590,7 @@ function init() {
     renderSchedule();
   });
 
-  document.getElementById('export-ics').addEventListener('click', downloadICS);
+  document.getElementById('export-ics').addEventListener('click', downloadAllICS);
 
   document.getElementById('tab-matches').addEventListener('click', () => showTab('matches'));
   document.getElementById('tab-standings').addEventListener('click', () => showTab('standings'));
