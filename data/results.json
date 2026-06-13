@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-13T05:16:02Z",
+  "updatedAt": "2026-06-13T09:55:03Z",
   "results": {
     "1": {
       "status": "finished",
@@ -99,7 +99,7 @@
         "pts": 1
       },
       {
-        "code": "QAT",
+        "code": "SUI",
         "pos": 3,
         "pld": 0,
         "w": 0,
@@ -111,7 +111,7 @@
         "pts": 0
       },
       {
-        "code": "SUI",
+        "code": "QAT",
         "pos": 4,
         "pld": 0,
         "w": 0,
@@ -187,7 +187,7 @@
         "pts": 3
       },
       {
-        "code": "AUS",
+        "code": "TUR",
         "pos": 2,
         "pld": 0,
         "w": 0,
@@ -199,7 +199,7 @@
         "pts": 0
       },
       {
-        "code": "TUR",
+        "code": "AUS",
         "pos": 3,
         "pld": 0,
         "w": 0,
