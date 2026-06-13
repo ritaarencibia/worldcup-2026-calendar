@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-12T22:19:18Z",
+  "updatedAt": "2026-06-13T05:16:02Z",
   "results": {
     "1": {
       "status": "finished",
@@ -14,6 +14,11 @@
     "3": {
       "status": "finished",
       "home": 1,
+      "away": 1
+    },
+    "4": {
+      "status": "finished",
+      "home": 4,
       "away": 1
     }
   },
@@ -94,7 +99,7 @@
         "pts": 1
       },
       {
-        "code": "SUI",
+        "code": "QAT",
         "pos": 3,
         "pld": 0,
         "w": 0,
@@ -106,7 +111,7 @@
         "pts": 0
       },
       {
-        "code": "QAT",
+        "code": "SUI",
         "pos": 4,
         "pld": 0,
         "w": 0,
@@ -172,17 +177,17 @@
       {
         "code": "USA",
         "pos": 1,
-        "pld": 0,
-        "w": 0,
+        "pld": 1,
+        "w": 1,
         "d": 0,
         "l": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
-        "pts": 0
+        "gf": 4,
+        "ga": 1,
+        "gd": 3,
+        "pts": 3
       },
       {
-        "code": "PAR",
+        "code": "AUS",
         "pos": 2,
         "pld": 0,
         "w": 0,
@@ -194,7 +199,7 @@
         "pts": 0
       },
       {
-        "code": "AUS",
+        "code": "TUR",
         "pos": 3,
         "pld": 0,
         "w": 0,
@@ -206,15 +211,15 @@
         "pts": 0
       },
       {
-        "code": "TUR",
+        "code": "PAR",
         "pos": 4,
-        "pld": 0,
+        "pld": 1,
         "w": 0,
         "d": 0,
-        "l": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
+        "l": 1,
+        "gf": 1,
+        "ga": 4,
+        "gd": -3,
         "pts": 0
       }
     ],
