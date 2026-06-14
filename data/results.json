@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-14T05:25:03Z",
+  "updatedAt": "2026-06-14T08:49:02Z",
   "results": {
     "1": {
       "status": "finished",
@@ -35,6 +35,11 @@
       "status": "finished",
       "home": 4,
       "away": 1
+    },
+    "6": {
+      "status": "finished",
+      "home": 2,
+      "away": 0
     }
   },
   "standings": {
@@ -202,27 +207,27 @@
         "pts": 3
       },
       {
-        "code": "TUR",
+        "code": "AUS",
         "pos": 2,
-        "pld": 0,
-        "w": 0,
+        "pld": 1,
+        "w": 1,
         "d": 0,
         "l": 0,
-        "gf": 0,
+        "gf": 2,
         "ga": 0,
-        "gd": 0,
-        "pts": 0
+        "gd": 2,
+        "pts": 3
       },
       {
-        "code": "AUS",
+        "code": "TUR",
         "pos": 3,
-        "pld": 0,
+        "pld": 1,
         "w": 0,
         "d": 0,
-        "l": 0,
+        "l": 1,
         "gf": 0,
-        "ga": 0,
-        "gd": 0,
+        "ga": 2,
+        "gd": -2,
         "pts": 0
       },
       {
