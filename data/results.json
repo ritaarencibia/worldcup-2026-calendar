@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-14T08:49:02Z",
+  "updatedAt": "2026-06-14T22:03:04Z",
   "results": {
     "1": {
       "status": "finished",
@@ -40,6 +40,16 @@
       "status": "finished",
       "home": 2,
       "away": 0
+    },
+    "10": {
+      "status": "finished",
+      "home": 7,
+      "away": 1
+    },
+    "11": {
+      "status": "finished",
+      "home": 2,
+      "away": 2
     }
   },
   "standings": {
@@ -247,17 +257,17 @@
       {
         "code": "GER",
         "pos": 1,
-        "pld": 0,
-        "w": 0,
+        "pld": 1,
+        "w": 1,
         "d": 0,
         "l": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
-        "pts": 0
+        "gf": 7,
+        "ga": 1,
+        "gd": 6,
+        "pts": 3
       },
       {
-        "code": "CUW",
+        "code": "ECU",
         "pos": 2,
         "pld": 0,
         "w": 0,
@@ -281,42 +291,42 @@
         "pts": 0
       },
       {
-        "code": "ECU",
+        "code": "CUW",
         "pos": 4,
-        "pld": 0,
+        "pld": 1,
         "w": 0,
         "d": 0,
-        "l": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
+        "l": 1,
+        "gf": 1,
+        "ga": 7,
+        "gd": -6,
         "pts": 0
       }
     ],
     "F": [
       {
-        "code": "NED",
+        "code": "JPN",
         "pos": 1,
-        "pld": 0,
+        "pld": 1,
         "w": 0,
-        "d": 0,
+        "d": 1,
         "l": 0,
-        "gf": 0,
-        "ga": 0,
+        "gf": 2,
+        "ga": 2,
         "gd": 0,
-        "pts": 0
+        "pts": 1
       },
       {
-        "code": "JPN",
+        "code": "NED",
         "pos": 2,
-        "pld": 0,
+        "pld": 1,
         "w": 0,
-        "d": 0,
+        "d": 1,
         "l": 0,
-        "gf": 0,
-        "ga": 0,
+        "gf": 2,
+        "ga": 2,
         "gd": 0,
-        "pts": 0
+        "pts": 1
       },
       {
         "code": "SWE",
