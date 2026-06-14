@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-13T21:58:05Z",
+  "updatedAt": "2026-06-14T05:25:03Z",
   "results": {
     "1": {
       "status": "finished",
@@ -19,6 +19,16 @@
     "8": {
       "status": "finished",
       "home": 1,
+      "away": 1
+    },
+    "7": {
+      "status": "finished",
+      "home": 1,
+      "away": 1
+    },
+    "5": {
+      "status": "finished",
+      "home": 0,
       "away": 1
     },
     "4": {
@@ -130,51 +140,51 @@
     ],
     "C": [
       {
-        "code": "BRA",
+        "code": "SCO",
         "pos": 1,
-        "pld": 0,
-        "w": 0,
+        "pld": 1,
+        "w": 1,
         "d": 0,
         "l": 0,
-        "gf": 0,
+        "gf": 1,
         "ga": 0,
-        "gd": 0,
-        "pts": 0
+        "gd": 1,
+        "pts": 3
       },
       {
         "code": "MAR",
         "pos": 2,
-        "pld": 0,
+        "pld": 1,
         "w": 0,
-        "d": 0,
+        "d": 1,
         "l": 0,
-        "gf": 0,
-        "ga": 0,
+        "gf": 1,
+        "ga": 1,
         "gd": 0,
-        "pts": 0
+        "pts": 1
+      },
+      {
+        "code": "BRA",
+        "pos": 3,
+        "pld": 1,
+        "w": 0,
+        "d": 1,
+        "l": 0,
+        "gf": 1,
+        "ga": 1,
+        "gd": 0,
+        "pts": 1
       },
       {
         "code": "HAI",
-        "pos": 3,
-        "pld": 0,
-        "w": 0,
-        "d": 0,
-        "l": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
-        "pts": 0
-      },
-      {
-        "code": "SCO",
         "pos": 4,
-        "pld": 0,
+        "pld": 1,
         "w": 0,
         "d": 0,
-        "l": 0,
+        "l": 1,
         "gf": 0,
-        "ga": 0,
-        "gd": 0,
+        "ga": 1,
+        "gd": -1,
         "pts": 0
       }
     ],
