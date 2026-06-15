@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-15T06:16:10Z",
+  "updatedAt": "2026-06-15T22:59:02Z",
   "results": {
     "1": {
       "status": "finished",
@@ -60,6 +60,16 @@
       "status": "finished",
       "home": 5,
       "away": 1
+    },
+    "16": {
+      "status": "finished",
+      "home": 1,
+      "away": 1
+    },
+    "14": {
+      "status": "finished",
+      "home": 0,
+      "away": 0
     }
   },
   "standings": {
@@ -367,26 +377,26 @@
       {
         "code": "BEL",
         "pos": 1,
-        "pld": 0,
+        "pld": 1,
         "w": 0,
-        "d": 0,
+        "d": 1,
         "l": 0,
-        "gf": 0,
-        "ga": 0,
+        "gf": 1,
+        "ga": 1,
         "gd": 0,
-        "pts": 0
+        "pts": 1
       },
       {
         "code": "EGY",
         "pos": 2,
-        "pld": 0,
+        "pld": 1,
         "w": 0,
-        "d": 0,
+        "d": 1,
         "l": 0,
-        "gf": 0,
-        "ga": 0,
+        "gf": 1,
+        "ga": 1,
         "gd": 0,
-        "pts": 0
+        "pts": 1
       },
       {
         "code": "IRN",
@@ -417,29 +427,29 @@
       {
         "code": "ESP",
         "pos": 1,
-        "pld": 0,
+        "pld": 1,
         "w": 0,
-        "d": 0,
+        "d": 1,
         "l": 0,
         "gf": 0,
         "ga": 0,
         "gd": 0,
-        "pts": 0
+        "pts": 1
       },
       {
         "code": "CPV",
         "pos": 2,
-        "pld": 0,
+        "pld": 1,
         "w": 0,
-        "d": 0,
+        "d": 1,
         "l": 0,
         "gf": 0,
         "ga": 0,
         "gd": 0,
-        "pts": 0
+        "pts": 1
       },
       {
-        "code": "KSA",
+        "code": "URU",
         "pos": 3,
         "pld": 0,
         "w": 0,
@@ -451,7 +461,7 @@
         "pts": 0
       },
       {
-        "code": "URU",
+        "code": "KSA",
         "pos": 4,
         "pld": 0,
         "w": 0,
