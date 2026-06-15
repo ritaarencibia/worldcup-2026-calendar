@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-14T22:03:04Z",
+  "updatedAt": "2026-06-15T06:16:10Z",
   "results": {
     "1": {
       "status": "finished",
@@ -46,10 +46,20 @@
       "home": 7,
       "away": 1
     },
+    "9": {
+      "status": "finished",
+      "home": 1,
+      "away": 0
+    },
     "11": {
       "status": "finished",
       "home": 2,
       "away": 2
+    },
+    "12": {
+      "status": "finished",
+      "home": 5,
+      "away": 1
     }
   },
   "standings": {
@@ -267,27 +277,27 @@
         "pts": 3
       },
       {
-        "code": "ECU",
+        "code": "CIV",
         "pos": 2,
-        "pld": 0,
-        "w": 0,
+        "pld": 1,
+        "w": 1,
         "d": 0,
         "l": 0,
-        "gf": 0,
+        "gf": 1,
         "ga": 0,
-        "gd": 0,
-        "pts": 0
+        "gd": 1,
+        "pts": 3
       },
       {
-        "code": "CIV",
+        "code": "ECU",
         "pos": 3,
-        "pld": 0,
+        "pld": 1,
         "w": 0,
         "d": 0,
-        "l": 0,
+        "l": 1,
         "gf": 0,
-        "ga": 0,
-        "gd": 0,
+        "ga": 1,
+        "gd": -1,
         "pts": 0
       },
       {
@@ -305,19 +315,19 @@
     ],
     "F": [
       {
-        "code": "JPN",
+        "code": "SWE",
         "pos": 1,
         "pld": 1,
-        "w": 0,
-        "d": 1,
+        "w": 1,
+        "d": 0,
         "l": 0,
-        "gf": 2,
-        "ga": 2,
-        "gd": 0,
-        "pts": 1
+        "gf": 5,
+        "ga": 1,
+        "gd": 4,
+        "pts": 3
       },
       {
-        "code": "NED",
+        "code": "JPN",
         "pos": 2,
         "pld": 1,
         "w": 0,
@@ -329,27 +339,27 @@
         "pts": 1
       },
       {
-        "code": "SWE",
+        "code": "NED",
         "pos": 3,
-        "pld": 0,
+        "pld": 1,
         "w": 0,
-        "d": 0,
+        "d": 1,
         "l": 0,
-        "gf": 0,
-        "ga": 0,
+        "gf": 2,
+        "ga": 2,
         "gd": 0,
-        "pts": 0
+        "pts": 1
       },
       {
         "code": "TUN",
         "pos": 4,
-        "pld": 0,
+        "pld": 1,
         "w": 0,
         "d": 0,
-        "l": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
+        "l": 1,
+        "gf": 1,
+        "ga": 5,
+        "gd": -4,
         "pts": 0
       }
     ],
