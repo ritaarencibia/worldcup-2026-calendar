@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-16T05:36:03Z",
+  "updatedAt": "2026-06-16T22:50:02Z",
   "results": {
     "1": {
       "status": "finished",
@@ -79,6 +79,11 @@
     "13": {
       "status": "finished",
       "home": 1,
+      "away": 1
+    },
+    "17": {
+      "status": "finished",
+      "home": 3,
       "away": 1
     }
   },
@@ -487,17 +492,17 @@
       {
         "code": "FRA",
         "pos": 1,
-        "pld": 0,
-        "w": 0,
+        "pld": 1,
+        "w": 1,
         "d": 0,
         "l": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
-        "pts": 0
+        "gf": 3,
+        "ga": 1,
+        "gd": 2,
+        "pts": 3
       },
       {
-        "code": "SEN",
+        "code": "NOR",
         "pos": 2,
         "pld": 0,
         "w": 0,
@@ -521,15 +526,15 @@
         "pts": 0
       },
       {
-        "code": "NOR",
+        "code": "SEN",
         "pos": 4,
-        "pld": 0,
+        "pld": 1,
         "w": 0,
         "d": 0,
-        "l": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
+        "l": 1,
+        "gf": 1,
+        "ga": 3,
+        "gd": -2,
         "pts": 0
       }
     ],
