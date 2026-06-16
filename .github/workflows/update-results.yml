@@ -6,6 +6,7 @@ on:
   schedule:
     - cron: '0 21 * * *'   # 23:00 CEST — evening matches done
     - cron: '0 1 * * *'    # 03:00 CEST — late-night matches
+    - cron: '0 3 * * *'    # 05:00 CEST — late-night matches (2)
     - cron: '0 7 * * *'    # 09:00 CEST — guarantees the full matchday
   workflow_dispatch: {}     # manual "Run workflow" button
 
