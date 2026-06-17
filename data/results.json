@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-17T06:02:02Z",
+  "updatedAt": "2026-06-17T08:27:03Z",
   "results": {
     "1": {
       "status": "finished",
@@ -95,6 +95,11 @@
       "status": "finished",
       "home": 3,
       "away": 0
+    },
+    "20": {
+      "status": "finished",
+      "home": 3,
+      "away": 1
     }
   },
   "standings": {
@@ -564,25 +569,25 @@
       {
         "code": "AUT",
         "pos": 2,
-        "pld": 0,
-        "w": 0,
+        "pld": 1,
+        "w": 1,
         "d": 0,
         "l": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
-        "pts": 0
+        "gf": 3,
+        "ga": 1,
+        "gd": 2,
+        "pts": 3
       },
       {
         "code": "JOR",
         "pos": 3,
-        "pld": 0,
+        "pld": 1,
         "w": 0,
         "d": 0,
-        "l": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
+        "l": 1,
+        "gf": 1,
+        "ga": 3,
+        "gd": -2,
         "pts": 0
       },
       {
