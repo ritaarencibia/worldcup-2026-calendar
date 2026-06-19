@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-18T22:53:04Z",
+  "updatedAt": "2026-06-19T06:10:03Z",
   "results": {
     "1": {
       "status": "finished",
@@ -16,6 +16,11 @@
       "home": 1,
       "away": 1
     },
+    "28": {
+      "status": "finished",
+      "home": 1,
+      "away": 0
+    },
     "3": {
       "status": "finished",
       "home": 1,
@@ -30,6 +35,11 @@
       "status": "finished",
       "home": 4,
       "away": 1
+    },
+    "27": {
+      "status": "finished",
+      "home": 6,
+      "away": 0
     },
     "7": {
       "status": "finished",
@@ -137,25 +147,25 @@
       {
         "code": "MEX",
         "pos": 1,
-        "pld": 1,
-        "w": 1,
+        "pld": 2,
+        "w": 2,
         "d": 0,
         "l": 0,
-        "gf": 2,
+        "gf": 3,
         "ga": 0,
-        "gd": 2,
-        "pts": 3
+        "gd": 3,
+        "pts": 6
       },
       {
         "code": "KOR",
         "pos": 2,
-        "pld": 1,
+        "pld": 2,
         "w": 1,
         "d": 0,
-        "l": 0,
+        "l": 1,
         "gf": 2,
-        "ga": 1,
-        "gd": 1,
+        "ga": 2,
+        "gd": 0,
         "pts": 3
       },
       {
@@ -185,8 +195,20 @@
     ],
     "B": [
       {
-        "code": "SUI",
+        "code": "CAN",
         "pos": 1,
+        "pld": 2,
+        "w": 1,
+        "d": 1,
+        "l": 0,
+        "gf": 7,
+        "ga": 1,
+        "gd": 6,
+        "pts": 4
+      },
+      {
+        "code": "SUI",
+        "pos": 2,
         "pld": 2,
         "w": 1,
         "d": 1,
@@ -197,32 +219,8 @@
         "pts": 4
       },
       {
-        "code": "CAN",
-        "pos": 2,
-        "pld": 1,
-        "w": 0,
-        "d": 1,
-        "l": 0,
-        "gf": 1,
-        "ga": 1,
-        "gd": 0,
-        "pts": 1
-      },
-      {
-        "code": "QAT",
-        "pos": 3,
-        "pld": 1,
-        "w": 0,
-        "d": 1,
-        "l": 0,
-        "gf": 1,
-        "ga": 1,
-        "gd": 0,
-        "pts": 1
-      },
-      {
         "code": "BIH",
-        "pos": 4,
+        "pos": 3,
         "pld": 2,
         "w": 0,
         "d": 1,
@@ -230,6 +228,18 @@
         "gf": 2,
         "ga": 5,
         "gd": -3,
+        "pts": 1
+      },
+      {
+        "code": "QAT",
+        "pos": 4,
+        "pld": 2,
+        "w": 0,
+        "d": 1,
+        "l": 1,
+        "gf": 1,
+        "ga": 7,
+        "gd": -6,
         "pts": 1
       }
     ],
