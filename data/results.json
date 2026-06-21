@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-20T22:01:05Z",
+  "updatedAt": "2026-06-21T05:54:03Z",
   "results": {
     "1": {
       "status": "finished",
@@ -96,6 +96,11 @@
       "home": 2,
       "away": 1
     },
+    "34": {
+      "status": "finished",
+      "home": 0,
+      "away": 0
+    },
     "11": {
       "status": "finished",
       "home": 2,
@@ -110,6 +115,11 @@
       "status": "finished",
       "home": 5,
       "away": 1
+    },
+    "36": {
+      "status": "finished",
+      "home": 0,
+      "away": 4
     },
     "16": {
       "status": "finished",
@@ -401,26 +411,26 @@
       {
         "code": "ECU",
         "pos": 3,
-        "pld": 1,
+        "pld": 2,
         "w": 0,
-        "d": 0,
+        "d": 1,
         "l": 1,
         "gf": 0,
         "ga": 1,
         "gd": -1,
-        "pts": 0
+        "pts": 1
       },
       {
         "code": "CUW",
         "pos": 4,
-        "pld": 1,
+        "pld": 2,
         "w": 0,
-        "d": 0,
+        "d": 1,
         "l": 1,
         "gf": 1,
         "ga": 7,
         "gd": -6,
-        "pts": 0
+        "pts": 1
       }
     ],
     "F": [
