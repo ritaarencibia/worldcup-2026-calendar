@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-21T18:27:07Z",
+  "updatedAt": "2026-06-21T21:18:11Z",
   "results": {
     "1": {
       "status": "finished",
@@ -130,6 +130,11 @@
       "status": "finished",
       "home": 2,
       "away": 2
+    },
+    "39": {
+      "status": "finished",
+      "home": 0,
+      "away": 0
     },
     "14": {
       "status": "finished",
@@ -490,38 +495,38 @@
     ],
     "G": [
       {
-        "code": "NZL",
-        "pos": 1,
-        "pld": 1,
-        "w": 0,
-        "d": 1,
-        "l": 0,
-        "gf": 2,
-        "ga": 2,
-        "gd": 0,
-        "pts": 1
-      },
-      {
         "code": "IRN",
-        "pos": 2,
-        "pld": 1,
+        "pos": 1,
+        "pld": 2,
         "w": 0,
-        "d": 1,
+        "d": 2,
         "l": 0,
         "gf": 2,
         "ga": 2,
         "gd": 0,
-        "pts": 1
+        "pts": 2
       },
       {
         "code": "BEL",
+        "pos": 2,
+        "pld": 2,
+        "w": 0,
+        "d": 2,
+        "l": 0,
+        "gf": 1,
+        "ga": 1,
+        "gd": 0,
+        "pts": 2
+      },
+      {
+        "code": "NZL",
         "pos": 3,
         "pld": 1,
         "w": 0,
         "d": 1,
         "l": 0,
-        "gf": 1,
-        "ga": 1,
+        "gf": 2,
+        "ga": 2,
         "gd": 0,
         "pts": 1
       },
