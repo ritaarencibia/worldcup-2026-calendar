@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-21T07:57:03Z",
+  "updatedAt": "2026-06-21T18:27:07Z",
   "results": {
     "1": {
       "status": "finished",
@@ -140,6 +140,11 @@
       "status": "finished",
       "home": 1,
       "away": 1
+    },
+    "38": {
+      "status": "finished",
+      "home": 4,
+      "away": 0
     },
     "17": {
       "status": "finished",
@@ -535,19 +540,19 @@
     ],
     "H": [
       {
-        "code": "URU",
+        "code": "ESP",
         "pos": 1,
-        "pld": 1,
-        "w": 0,
+        "pld": 2,
+        "w": 1,
         "d": 1,
         "l": 0,
-        "gf": 1,
-        "ga": 1,
-        "gd": 0,
-        "pts": 1
+        "gf": 4,
+        "ga": 0,
+        "gd": 4,
+        "pts": 4
       },
       {
-        "code": "KSA",
+        "code": "URU",
         "pos": 2,
         "pld": 1,
         "w": 0,
@@ -559,15 +564,15 @@
         "pts": 1
       },
       {
-        "code": "ESP",
+        "code": "KSA",
         "pos": 3,
-        "pld": 1,
+        "pld": 2,
         "w": 0,
         "d": 1,
-        "l": 0,
-        "gf": 0,
-        "ga": 0,
-        "gd": 0,
+        "l": 1,
+        "gf": 1,
+        "ga": 5,
+        "gd": -4,
         "pts": 1
       },
       {
