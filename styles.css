@@ -33,11 +33,43 @@ main { max-width: 900px; margin: 0 auto; padding: 1.2rem; }
 
 /* Controls */
 .controls {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
   margin-bottom: 1.6rem;
 }
+
+/* Collapsible preferences: a single bar by default; the actual settings only
+   appear once the user expands it, so the page reads clean. Native <details>
+   keeps it keyboard-accessible for free. */
+.prefs { border: none; }
+.prefs-summary {
+  display: flex;
+  align-items: baseline;
+  gap: .5rem;
+  cursor: pointer;
+  list-style: none; /* hide the default disclosure triangle */
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: .85rem 1rem;
+  user-select: none;
+}
+.prefs-summary::-webkit-details-marker { display: none; }
+.prefs-summary:hover { background: var(--panel-2); }
+.prefs-summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.prefs-chevron { color: var(--accent); transition: transform .15s ease; }
+.prefs[open] .prefs-chevron { transform: rotate(90deg); }
+.prefs-title { font-weight: 600; }
+.prefs-sub { color: var(--muted); font-size: .82rem; }
+.prefs[open] .prefs-sub { display: none; } /* the hint is only useful when collapsed */
+.prefs-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+@media (prefers-reduced-motion: reduce) { .prefs-chevron { transition: none; } }
 .control-block {
   background: var(--panel);
   border: 1px solid var(--border);
