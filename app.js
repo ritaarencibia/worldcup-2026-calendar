@@ -20,6 +20,10 @@ const STAGE_LABELS = {
 const ALWAYS_KNOCKOUT = new Set(['qf', 'sf', 'bronze', 'final']);
 const TBD_KNOCKOUT = new Set(['r32', 'r16']);
 
+// How long after kickoff a match is treated as "in play" for the LIVE badge.
+// Generous on purpose: knockouts can run to extra time and penalties.
+const LIVE_DURATION_MS = 2.5 * 60 * 60 * 1000;
+
 const STORAGE_KEY = 'wc2026.prefs.v1';
 
 const TEAMS = window.TEAMS || [];
@@ -35,6 +39,17 @@ const RESOLVED = (RESULTS && RESULTS.resolved) || {};
 
 function resultFor(match) {
   return RESULT_BY_NUMBER[String(match.matchNumber)] || null;
+}
+
+// "In play right now", judged purely from the browser clock — no scraping, no
+// backend. A match is live from kickoff until LIVE_DURATION_MS later, unless the
+// scraped data already marks it finished.
+function isLive(match) {
+  const r = resultFor(match);
+  if (r && r.status === 'finished') return false;
+  const start = new Date(match.kickoffUtc).getTime();
+  const now = Date.now();
+  return now >= start && now < start + LIVE_DURATION_MS;
 }
 
 // Knockout slots ("1A", "W74") resolve to real team codes once known; group
@@ -62,6 +77,7 @@ const defaultPrefs = {
   sleepStart: '00:00',
   sleepEnd: '07:00',
   tab: 'matches',
+  hideOld: true,        // hide matches before yesterday (a cut, not a union filter)
 };
 
 function loadPrefs() {
@@ -167,6 +183,7 @@ function passWeekendRescue(match, lp) {
 }
 
 function isIncluded(match) {
+  if (isLive(match)) return true; // a match that's on right now always shows
   const f = prefs.filters;
   const anyOn = f.myTeams || f.goodHours || f.keyKnockouts || f.weekendRescue;
   if (!anyOn) return true; // nothing ticked -> show every match
@@ -178,6 +195,28 @@ function isIncluded(match) {
     (f.keyKnockouts && passKeyKnockouts(match)) ||
     (f.weekendRescue && passWeekendRescue(match, lp))
   );
+}
+
+// ---- "Hide old matches" cut ------------------------------------------------
+// Distinct from the union filters above: this is a SUBTRACTION applied to the
+// whole list, not another "show if…" option. We keep yesterday and everything
+// upcoming, dropping anything older (a live match is never dropped).
+function recentCutoffKey() {
+  // Start of "yesterday" in the user's timezone, as a YYYY-MM-DD key.
+  const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  return localParts(yesterday.toISOString()).dateKey;
+}
+
+function isHiddenAsOld(match, cutoffKey) {
+  if (!cutoffKey) return false; // toggle off -> nothing is too old
+  if (isLive(match)) return false;
+  return localParts(match.kickoffUtc).dateKey < cutoffKey; // keys sort lexically
+}
+
+// The single source of truth for what the schedule and the "Export all" share.
+function visibleMatches() {
+  const cutoffKey = prefs.hideOld ? recentCutoffKey() : null;
+  return MATCHES.filter((m) => isIncluded(m) && !isHiddenAsOld(m, cutoffKey));
 }
 
 // ---- Rendering -------------------------------------------------------------
@@ -207,7 +246,7 @@ function calLink(label, href) {
 }
 
 function renderSchedule() {
-  const visible = MATCHES.filter(isIncluded);
+  const visible = visibleMatches();
 
   document.getElementById('kept-count').textContent =
     `${visible.length} of ${MATCHES.length} matches shown`;
@@ -236,8 +275,10 @@ function renderSchedule() {
     }
 
     const finished = resultFor(match) && resultFor(match).status === 'finished';
+    const live = isLive(match);
     const li = document.createElement('li');
-    li.className = 'match' + (finished ? ' match--finished' : '');
+    li.className =
+      'match' + (finished ? ' match--finished' : '') + (live ? ' match--live' : '');
 
     const time = document.createElement('span');
     time.className = 'match-time';
@@ -248,6 +289,12 @@ function renderSchedule() {
     const title = document.createElement('span');
     title.className = 'match-title';
     title.textContent = matchTitle(match);
+    if (live) {
+      const badge = document.createElement('span');
+      badge.className = 'live-badge'; // CSS margin handles the gap from the title
+      badge.textContent = '🔴 LIVE';
+      title.appendChild(badge);
+    }
     const meta = document.createElement('span');
     meta.className = 'match-meta';
     const stage = STAGE_LABELS[match.stage] + (match.group ? ` ${match.group}` : '');
@@ -539,7 +586,7 @@ function downloadICSFile(matches, filename) {
 }
 
 function downloadAllICS() {
-  downloadICSFile(MATCHES.filter(isIncluded), 'my-world-cup-2026.ics');
+  downloadICSFile(visibleMatches(), 'my-world-cup-2026.ics');
 }
 
 function downloadMatchICS(match) {
@@ -575,6 +622,14 @@ function init() {
     });
   }
 
+  const hideOld = document.getElementById('filter-hideold');
+  hideOld.checked = !!prefs.hideOld;
+  hideOld.addEventListener('change', () => {
+    prefs.hideOld = hideOld.checked;
+    savePrefs();
+    renderSchedule();
+  });
+
   const sleepStart = document.getElementById('sleep-start');
   const sleepEnd = document.getElementById('sleep-end');
   sleepStart.value = prefs.sleepStart;
@@ -600,6 +655,10 @@ function init() {
   renderStandings();
   renderUpdatedAt();
   showTab(prefs.tab);
+
+  // Re-render once a minute so the LIVE badge appears/clears as kickoffs pass
+  // and matches end — the only moving part on this otherwise static page.
+  setInterval(renderSchedule, 60 * 1000);
 }
 
 document.addEventListener('DOMContentLoaded', init);
