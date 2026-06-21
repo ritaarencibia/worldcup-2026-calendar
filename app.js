@@ -78,6 +78,7 @@ const defaultPrefs = {
   sleepEnd: '07:00',
   tab: 'matches',
   hideOld: true,        // hide matches before yesterday (a cut, not a union filter)
+  prefsOpen: false,     // preferences panel collapsed by default
 };
 
 function loadPrefs() {
@@ -621,6 +622,13 @@ function init() {
       renderSchedule();
     });
   }
+
+  const prefsPanel = document.getElementById('prefs');
+  prefsPanel.open = !!prefs.prefsOpen;
+  prefsPanel.addEventListener('toggle', () => {
+    prefs.prefsOpen = prefsPanel.open;
+    savePrefs();
+  });
 
   const hideOld = document.getElementById('filter-hideold');
   hideOld.checked = !!prefs.hideOld;

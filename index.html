@@ -17,63 +17,72 @@
 
   <main>
     <section class="controls" aria-label="Controls">
-      <div class="control-block">
-        <label class="block-label" for="team-search">Teams you follow</label>
-        <p class="hint">Type a name (e.g. <em>Fr</em> → France) and pick from the list.
-          Their matches are always kept, whatever the time.</p>
-        <div class="typeahead">
-          <input id="team-search" type="text" autocomplete="off"
-                 placeholder="Add a team…" aria-label="Search a team to follow" />
-          <ul id="suggestions" class="suggestions" role="listbox" hidden></ul>
+      <details class="prefs" id="prefs">
+        <summary class="prefs-summary">
+          <span class="prefs-chevron" aria-hidden="true">▸</span>
+          <span class="prefs-title">⚙ Preferences</span>
+          <span class="prefs-sub">teams, hours, filters — tap to customise</span>
+        </summary>
+        <div class="prefs-body">
+          <div class="control-block">
+            <label class="block-label" for="team-search">Teams you follow</label>
+            <p class="hint">Type a name (e.g. <em>Fr</em> → France) and pick from the list.
+              Their matches are always kept, whatever the time.</p>
+            <div class="typeahead">
+              <input id="team-search" type="text" autocomplete="off"
+                     placeholder="Add a team…" aria-label="Search a team to follow" />
+              <ul id="suggestions" class="suggestions" role="listbox" hidden></ul>
+            </div>
+            <ul id="favorites" class="chips" aria-label="Followed teams"></ul>
+          </div>
+
+          <div class="control-block">
+            <span class="block-label">Sleep window</span>
+            <p class="hint">Matches that <strong>start</strong> in this window are dropped
+              (unless a followed team plays, or it's a weekend night with a big team).</p>
+            <div class="sleep-row">
+              <label>From <input id="sleep-start" type="time" value="00:00" /></label>
+              <label>to <input id="sleep-end" type="time" value="07:00" /></label>
+            </div>
+          </div>
+
+          <div class="control-block">
+            <span class="block-label">Show matches that are…</span>
+            <p class="hint">Tick any combination — a match appears if it passes
+              <strong>any</strong> ticked filter. Untick all to see every match.</p>
+            <ul class="filters">
+              <li><label class="switch">
+                <input id="filter-myteams" type="checkbox" />
+                <span>⭐ My teams <small>(any time)</small></span>
+              </label></li>
+              <li><label class="switch">
+                <input id="filter-goodhours" type="checkbox" />
+                <span>🌙 Good hours <small>(outside my sleep window)</small></span>
+              </label></li>
+              <li><label class="switch">
+                <input id="filter-knockouts" type="checkbox" />
+                <span>🏆 Key knockouts <small>(QF, semis, final, 3rd)</small></span>
+              </label></li>
+              <li><label class="switch">
+                <input id="filter-weekend" type="checkbox" />
+                <span>🎉 Weekend big-team rescue</span>
+              </label></li>
+            </ul>
+          </div>
+
+          <div class="control-block">
+            <span class="block-label">Tidy up</span>
+            <p class="hint">Hide matches that already happened — keeps yesterday and
+              everything still to come. A match that's on right now is always shown.</p>
+            <ul class="filters">
+              <li><label class="switch">
+                <input id="filter-hideold" type="checkbox" />
+                <span>🧹 Hide past matches <small>(keep from yesterday)</small></span>
+              </label></li>
+            </ul>
+          </div>
         </div>
-        <ul id="favorites" class="chips" aria-label="Followed teams"></ul>
-      </div>
-
-      <div class="control-block">
-        <span class="block-label">Sleep window</span>
-        <p class="hint">Matches that <strong>start</strong> in this window are dropped
-          (unless a followed team plays, or it's a weekend night with a big team).</p>
-        <div class="sleep-row">
-          <label>From <input id="sleep-start" type="time" value="00:00" /></label>
-          <label>to <input id="sleep-end" type="time" value="07:00" /></label>
-        </div>
-      </div>
-
-      <div class="control-block">
-        <span class="block-label">Show matches that are…</span>
-        <p class="hint">Tick any combination — a match appears if it passes
-          <strong>any</strong> ticked filter. Untick all to see every match.</p>
-        <ul class="filters">
-          <li><label class="switch">
-            <input id="filter-myteams" type="checkbox" />
-            <span>⭐ My teams <small>(any time)</small></span>
-          </label></li>
-          <li><label class="switch">
-            <input id="filter-goodhours" type="checkbox" />
-            <span>🌙 Good hours <small>(outside my sleep window)</small></span>
-          </label></li>
-          <li><label class="switch">
-            <input id="filter-knockouts" type="checkbox" />
-            <span>🏆 Key knockouts <small>(QF, semis, final, 3rd)</small></span>
-          </label></li>
-          <li><label class="switch">
-            <input id="filter-weekend" type="checkbox" />
-            <span>🎉 Weekend big-team rescue</span>
-          </label></li>
-        </ul>
-      </div>
-
-      <div class="control-block">
-        <span class="block-label">Tidy up</span>
-        <p class="hint">Hide matches that already happened — keeps yesterday and
-          everything still to come. A match that's on right now is always shown.</p>
-        <ul class="filters">
-          <li><label class="switch">
-            <input id="filter-hideold" type="checkbox" />
-            <span>🧹 Hide past matches <small>(keep from yesterday)</small></span>
-          </label></li>
-        </ul>
-      </div>
+      </details>
 
       <div class="control-block">
         <span class="block-label">Export</span>
