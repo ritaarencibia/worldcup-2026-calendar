@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-22T00:20:04Z",
+  "updatedAt": "2026-06-22T06:23:03Z",
   "results": {
     "1": {
       "status": "finished",
@@ -135,6 +135,11 @@
       "status": "finished",
       "home": 0,
       "away": 0
+    },
+    "40": {
+      "status": "finished",
+      "home": 1,
+      "away": 3
     },
     "14": {
       "status": "finished",
@@ -500,8 +505,20 @@
     ],
     "G": [
       {
-        "code": "IRN",
+        "code": "EGY",
         "pos": 1,
+        "pld": 2,
+        "w": 1,
+        "d": 1,
+        "l": 0,
+        "gf": 4,
+        "ga": 2,
+        "gd": 2,
+        "pts": 4
+      },
+      {
+        "code": "IRN",
+        "pos": 2,
         "pld": 2,
         "w": 0,
         "d": 2,
@@ -513,7 +530,7 @@
       },
       {
         "code": "BEL",
-        "pos": 2,
+        "pos": 3,
         "pld": 2,
         "w": 0,
         "d": 2,
@@ -525,26 +542,14 @@
       },
       {
         "code": "NZL",
-        "pos": 3,
-        "pld": 1,
-        "w": 0,
-        "d": 1,
-        "l": 0,
-        "gf": 2,
-        "ga": 2,
-        "gd": 0,
-        "pts": 1
-      },
-      {
-        "code": "EGY",
         "pos": 4,
-        "pld": 1,
+        "pld": 2,
         "w": 0,
         "d": 1,
-        "l": 0,
-        "gf": 1,
-        "ga": 1,
-        "gd": 0,
+        "l": 1,
+        "gf": 3,
+        "ga": 5,
+        "gd": -2,
         "pts": 1
       }
     ],
