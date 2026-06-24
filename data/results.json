@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-23T22:08:04Z",
+  "updatedAt": "2026-06-24T04:59:04Z",
   "results": {
     "1": {
       "status": "finished",
@@ -216,6 +216,11 @@
       "home": 5,
       "away": 0
     },
+    "48": {
+      "status": "finished",
+      "home": 1,
+      "away": 0
+    },
     "22": {
       "status": "finished",
       "home": 4,
@@ -230,6 +235,11 @@
       "status": "finished",
       "home": 0,
       "away": 0
+    },
+    "46": {
+      "status": "finished",
+      "home": 0,
+      "away": 1
     }
   },
   "standings": {
@@ -735,8 +745,20 @@
     ],
     "K": [
       {
-        "code": "POR",
+        "code": "COL",
         "pos": 1,
+        "pld": 2,
+        "w": 2,
+        "d": 0,
+        "l": 0,
+        "gf": 4,
+        "ga": 1,
+        "gd": 3,
+        "pts": 6
+      },
+      {
+        "code": "POR",
+        "pos": 2,
         "pld": 2,
         "w": 1,
         "d": 1,
@@ -747,27 +769,15 @@
         "pts": 4
       },
       {
-        "code": "COL",
-        "pos": 2,
-        "pld": 1,
-        "w": 1,
-        "d": 0,
-        "l": 0,
-        "gf": 3,
-        "ga": 1,
-        "gd": 2,
-        "pts": 3
-      },
-      {
         "code": "COD",
         "pos": 3,
-        "pld": 1,
+        "pld": 2,
         "w": 0,
         "d": 1,
-        "l": 0,
+        "l": 1,
         "gf": 1,
-        "ga": 1,
-        "gd": 0,
+        "ga": 2,
+        "gd": -1,
         "pts": 1
       },
       {
@@ -809,26 +819,26 @@
         "pts": 4
       },
       {
-        "code": "PAN",
+        "code": "CRO",
         "pos": 3,
-        "pld": 1,
-        "w": 0,
+        "pld": 2,
+        "w": 1,
         "d": 0,
         "l": 1,
-        "gf": 0,
-        "ga": 1,
+        "gf": 3,
+        "ga": 4,
         "gd": -1,
-        "pts": 0
+        "pts": 3
       },
       {
-        "code": "CRO",
+        "code": "PAN",
         "pos": 4,
-        "pld": 1,
+        "pld": 2,
         "w": 0,
         "d": 0,
-        "l": 1,
-        "gf": 2,
-        "ga": 4,
+        "l": 2,
+        "gf": 0,
+        "ga": 2,
         "gd": -2,
         "pts": 0
       }
