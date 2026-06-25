@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-25T04:58:03Z",
+  "updatedAt": "2026-06-25T22:17:04Z",
   "results": {
     "1": {
       "status": "finished",
@@ -130,6 +130,16 @@
       "status": "finished",
       "home": 0,
       "away": 0
+    },
+    "55": {
+      "status": "finished",
+      "home": 0,
+      "away": 2
+    },
+    "56": {
+      "status": "finished",
+      "home": 2,
+      "away": 1
     },
     "11": {
       "status": "finished",
@@ -477,49 +487,49 @@
       {
         "code": "GER",
         "pos": 1,
-        "pld": 2,
+        "pld": 3,
         "w": 2,
         "d": 0,
-        "l": 0,
-        "gf": 9,
-        "ga": 2,
-        "gd": 7,
+        "l": 1,
+        "gf": 10,
+        "ga": 4,
+        "gd": 6,
         "pts": 6
       },
       {
         "code": "CIV",
         "pos": 2,
-        "pld": 2,
-        "w": 1,
+        "pld": 3,
+        "w": 2,
         "d": 0,
         "l": 1,
-        "gf": 2,
+        "gf": 4,
         "ga": 2,
-        "gd": 0,
-        "pts": 3
+        "gd": 2,
+        "pts": 6
       },
       {
         "code": "ECU",
         "pos": 3,
-        "pld": 2,
-        "w": 0,
+        "pld": 3,
+        "w": 1,
         "d": 1,
         "l": 1,
-        "gf": 0,
-        "ga": 1,
-        "gd": -1,
-        "pts": 1
+        "gf": 2,
+        "ga": 2,
+        "gd": 0,
+        "pts": 4
       },
       {
         "code": "CUW",
         "pos": 4,
-        "pld": 2,
+        "pld": 3,
         "w": 0,
         "d": 1,
-        "l": 1,
+        "l": 2,
         "gf": 1,
-        "ga": 7,
-        "gd": -6,
+        "ga": 9,
+        "gd": -8,
         "pts": 1
       }
     ],
