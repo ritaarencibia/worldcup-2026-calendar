@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-25T22:17:04Z",
+  "updatedAt": "2026-06-26T05:04:03Z",
   "results": {
     "1": {
       "status": "finished",
@@ -111,6 +111,16 @@
       "home": 0,
       "away": 1
     },
+    "59": {
+      "status": "finished",
+      "home": 3,
+      "away": 2
+    },
+    "60": {
+      "status": "finished",
+      "home": 0,
+      "away": 0
+    },
     "10": {
       "status": "finished",
       "home": 7,
@@ -160,6 +170,16 @@
       "status": "finished",
       "home": 0,
       "away": 4
+    },
+    "57": {
+      "status": "finished",
+      "home": 1,
+      "away": 1
+    },
+    "58": {
+      "status": "finished",
+      "home": 1,
+      "away": 3
     },
     "16": {
       "status": "finished",
@@ -437,50 +457,50 @@
       {
         "code": "USA",
         "pos": 1,
-        "pld": 2,
+        "pld": 3,
         "w": 2,
         "d": 0,
-        "l": 0,
-        "gf": 6,
-        "ga": 1,
-        "gd": 5,
+        "l": 1,
+        "gf": 8,
+        "ga": 4,
+        "gd": 4,
         "pts": 6
       },
       {
         "code": "AUS",
         "pos": 2,
-        "pld": 2,
+        "pld": 3,
         "w": 1,
-        "d": 0,
+        "d": 1,
         "l": 1,
         "gf": 2,
         "ga": 2,
         "gd": 0,
-        "pts": 3
+        "pts": 4
       },
       {
         "code": "PAR",
         "pos": 3,
-        "pld": 2,
+        "pld": 3,
         "w": 1,
-        "d": 0,
+        "d": 1,
         "l": 1,
         "gf": 2,
         "ga": 4,
         "gd": -2,
-        "pts": 3
+        "pts": 4
       },
       {
         "code": "TUR",
         "pos": 4,
-        "pld": 2,
-        "w": 0,
+        "pld": 3,
+        "w": 1,
         "d": 0,
         "l": 2,
-        "gf": 0,
-        "ga": 3,
-        "gd": -3,
-        "pts": 0
+        "gf": 3,
+        "ga": 5,
+        "gd": -2,
+        "pts": 3
       }
     ],
     "E": [
@@ -537,49 +557,49 @@
       {
         "code": "NED",
         "pos": 1,
-        "pld": 2,
-        "w": 1,
+        "pld": 3,
+        "w": 2,
         "d": 1,
         "l": 0,
-        "gf": 7,
-        "ga": 3,
-        "gd": 4,
-        "pts": 4
+        "gf": 10,
+        "ga": 4,
+        "gd": 6,
+        "pts": 7
       },
       {
         "code": "JPN",
         "pos": 2,
-        "pld": 2,
+        "pld": 3,
         "w": 1,
-        "d": 1,
+        "d": 2,
         "l": 0,
-        "gf": 6,
-        "ga": 2,
+        "gf": 7,
+        "ga": 3,
         "gd": 4,
-        "pts": 4
+        "pts": 5
       },
       {
         "code": "SWE",
         "pos": 3,
-        "pld": 2,
+        "pld": 3,
         "w": 1,
-        "d": 0,
+        "d": 1,
         "l": 1,
-        "gf": 6,
-        "ga": 6,
+        "gf": 7,
+        "ga": 7,
         "gd": 0,
-        "pts": 3
+        "pts": 4
       },
       {
         "code": "TUN",
         "pos": 4,
-        "pld": 2,
+        "pld": 3,
         "w": 0,
         "d": 0,
-        "l": 2,
-        "gf": 1,
-        "ga": 9,
-        "gd": -8,
+        "l": 3,
+        "gf": 2,
+        "ga": 12,
+        "gd": -10,
         "pts": 0
       }
     ],
@@ -888,6 +908,18 @@
     "73": {
       "home": "RSA",
       "away": "CAN"
+    },
+    "76": {
+      "home": "BRA",
+      "away": "JPN"
+    },
+    "75": {
+      "home": "NED",
+      "away": "MAR"
+    },
+    "81": {
+      "home": "USA",
+      "away": "BIH"
     }
   }
 }
