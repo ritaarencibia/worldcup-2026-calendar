@@ -30,11 +30,22 @@ jobs:
         with:
           python-version: '3.12'
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Install dependencies
         run: pip install -r requirements.txt
 
       - name: Fetch results from Wikipedia
         run: python scripts/fetch_results.py
+
+      # Guard: never commit data that breaks the schedule, standings or bracket.
+      - name: Validate fetched data
+        run: |
+          node scripts/smoke_dom.js
+          node scripts/verify_bracket.js
+          node scripts/smoke_bracket_dom.js
 
       - name: Commit data if it changed
         run: |
