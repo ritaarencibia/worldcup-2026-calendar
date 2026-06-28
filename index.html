@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>My World Cup 2026 Calendar</title>
   <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1419" />
+  <link rel="apple-touch-icon" href="icons/icon-180.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="WC2026" />
 </head>
 <body>
   <header class="site-header">
@@ -24,6 +30,12 @@
           <span class="prefs-sub">teams, hours, filters — tap to customise</span>
         </summary>
         <div class="prefs-body">
+          <div class="control-block">
+            <label class="block-label" for="timezone-select">Timezone</label>
+            <p class="hint">All kick-off times and day headers are shown in this zone.</p>
+            <select id="timezone-select" class="tz-select" aria-label="Display timezone"></select>
+          </div>
+
           <div class="control-block">
             <label class="block-label" for="team-search">Teams you follow</label>
             <p class="hint">Type a name (e.g. <em>Fr</em> → France) and pick from the list.

@@ -93,6 +93,18 @@ input[type="text"], input[type="time"] {
 input[type="time"] { width: auto; }
 input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 
+.tz-select {
+  width: 100%;
+  padding: .55rem .65rem;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: .95rem;
+  font-family: inherit;
+}
+.tz-select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+
 .suggestions {
   position: absolute;
   left: 0; right: 0; top: calc(100% + 4px);
