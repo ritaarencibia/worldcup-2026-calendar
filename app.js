@@ -2,9 +2,6 @@
  * Filtering rules mirror spec_v1.md §5. */
 'use strict';
 
-// User timezone. CEST in summer == Europe/Oslo (Central European, DST-aware).
-const TIME_ZONE = 'Europe/Oslo';
-
 // Big nations for the weekend exception (spec §5 rule 3).
 const BIG_TEAMS = new Set(['GER', 'BRA', 'ARG', 'ENG', 'FRA', 'ESP', 'POR']);
 
@@ -80,6 +77,7 @@ const defaultPrefs = {
   tab: 'matches',
   hideOld: true,        // hide matches before yesterday (a cut, not a union filter)
   prefsOpen: false,     // preferences panel collapsed by default
+  timeZone: 'Europe/Oslo', // display timezone for all kick-off times
 };
 
 function loadPrefs() {
@@ -108,23 +106,39 @@ function savePrefs() {
 const prefs = loadPrefs();
 
 // ---- Timezone helpers ------------------------------------------------------
-const partsFmt = new Intl.DateTimeFormat('en-GB', {
-  timeZone: TIME_ZONE,
-  weekday: 'short',
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-  hourCycle: 'h23',
-});
+// The display timezone is user-selectable (default Europe/Oslo). Every
+// wall-clock string goes through these two formatters, which are rebuilt
+// whenever the zone changes so the schedule, day headers, bracket and the
+// "updated" line all move together.
+let TIME_ZONE = prefs.timeZone || 'Europe/Oslo';
+let partsFmt;
+let dayHeaderFmt;
 
-const dayHeaderFmt = new Intl.DateTimeFormat('en-GB', {
-  timeZone: TIME_ZONE,
-  weekday: 'long',
-  day: 'numeric',
-  month: 'long',
-});
+function buildFormatters() {
+  partsFmt = new Intl.DateTimeFormat('en-GB', {
+    timeZone: TIME_ZONE,
+    weekday: 'short', year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+  });
+  dayHeaderFmt = new Intl.DateTimeFormat('en-GB', {
+    timeZone: TIME_ZONE, weekday: 'long', day: 'numeric', month: 'long',
+  });
+}
+buildFormatters();
+
+// Short name of the current zone at a given instant, e.g. "CEST", "GMT-5",
+// "JST" — used for the header hint and the "Results updated …" line.
+function tzLabel(date = new Date()) {
+  try {
+    const parts = new Intl.DateTimeFormat('en-GB', {
+      timeZone: TIME_ZONE, timeZoneName: 'short', hour: '2-digit',
+    }).formatToParts(date);
+    const name = parts.find((p) => p.type === 'timeZoneName');
+    return name ? name.value : TIME_ZONE;
+  } catch (e) {
+    return TIME_ZONE;
+  }
+}
 
 /** Wall-clock fields of an instant in the user's timezone. */
 function localParts(isoUtc) {
@@ -162,9 +176,12 @@ function inSleepWindow(lp) {
 // Independent filter predicates (spec §5). Each answers "does this match
 // qualify under this single filter?".
 function passMyTeams(match) {
-  if (match.stage !== 'group') return false; // knockout teams are still TBD
   const favorites = new Set(prefs.favorites);
-  return favorites.has(match.home) || favorites.has(match.away);
+  // Group matches already carry real codes; knockout slots ("2A", "W73")
+  // resolve to real codes once the bracket fills in, so a followed team's
+  // knockout matches are kept the moment its opponent is known.
+  const codes = resolvedCodes(match);
+  return favorites.has(codes.home) || favorites.has(codes.away);
 }
 
 function passGoodHours(match, lp) {
@@ -562,7 +579,7 @@ function renderUpdatedAt() {
     timeZone: TIME_ZONE, day: 'numeric', month: 'short',
     hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
   });
-  el.textContent = `Results updated ${fmt.format(when)} CEST`;
+  el.textContent = `Results updated ${fmt.format(when)} ${tzLabel(when)}`;
 }
 
 const TABS = {
@@ -767,9 +784,71 @@ function downloadMatchICS(match) {
   downloadICSFile([match], `wc2026-match-${match.matchNumber}.ics`);
 }
 
+// ---- Timezone picker -------------------------------------------------------
+// A short, host-and-Europe-focused list; the viewer's own device zone is added
+// on top when it isn't already covered, so anyone gets a sensible default.
+const TIMEZONES = [
+  ['Europe/Oslo', 'Central Europe — Oslo, Madrid, Berlin'],
+  ['Europe/London', 'UK & Portugal — London, Lisbon'],
+  ['America/New_York', 'US/Canada East — New York, Toronto'],
+  ['America/Chicago', 'US Central — Chicago, Dallas'],
+  ['America/Mexico_City', 'Mexico — Mexico City, Monterrey'],
+  ['America/Denver', 'US Mountain — Denver'],
+  ['America/Los_Angeles', 'US/Canada West — LA, Vancouver, Seattle'],
+  ['America/Sao_Paulo', 'Brazil — São Paulo'],
+  ['America/Argentina/Buenos_Aires', 'Argentina — Buenos Aires'],
+  ['Africa/Johannesburg', 'South Africa — Johannesburg'],
+  ['Asia/Tokyo', 'Japan & Korea — Tokyo, Seoul'],
+  ['Australia/Sydney', 'Australia East — Sydney'],
+  ['UTC', 'UTC'],
+];
+
+function populateTimezones() {
+  const sel = document.getElementById('timezone-select');
+  if (!sel) return;
+  sel.innerHTML = '';
+  let detected = '';
+  try { detected = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { /* ignore */ }
+  const list = [...TIMEZONES];
+  if (detected && !list.some(([zone]) => zone === detected)) {
+    list.unshift([detected, `My device — ${detected}`]);
+  }
+  for (const [zone, label] of list) {
+    const opt = document.createElement('option');
+    opt.value = zone;
+    opt.textContent = label;
+    sel.appendChild(opt);
+  }
+  sel.value = TIME_ZONE;
+}
+
+function applyTimeZone(zone) {
+  prefs.timeZone = zone || 'Europe/Oslo';
+  TIME_ZONE = prefs.timeZone;
+  buildFormatters();
+  savePrefs();
+  document.getElementById('tz-label').textContent = tzLabel();
+  renderSchedule();
+  renderBracket();
+  renderUpdatedAt();
+}
+
+// ---- Offline / installable (PWA) -------------------------------------------
+// Register the service worker only over http(s) — it can't run on file:// and
+// isn't needed there. Failures are non-fatal: the page works without it.
+function registerServiceWorker() {
+  if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) return;
+  if (typeof location === 'undefined' || !location.protocol.startsWith('http')) return;
+  navigator.serviceWorker.register('sw.js').catch(() => { /* offline support is optional */ });
+}
+
 // ---- Wiring ----------------------------------------------------------------
 function init() {
-  document.getElementById('tz-label').textContent = 'CEST';
+  document.getElementById('tz-label').textContent = tzLabel();
+
+  populateTimezones();
+  const tzSelect = document.getElementById('timezone-select');
+  tzSelect.addEventListener('change', () => applyTimeZone(tzSelect.value));
 
   const search = document.getElementById('team-search');
   search.addEventListener('input', () => renderSuggestions(search.value));
@@ -845,6 +924,8 @@ function init() {
     renderSchedule();
     renderBracket();
   }, 60 * 1000);
+
+  registerServiceWorker();
 }
 
 document.addEventListener('DOMContentLoaded', init);

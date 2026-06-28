@@ -5,7 +5,17 @@ const ROOT = path.dirname(__dirname);
 global.window = {};
 require(path.join(ROOT, 'data', 'teams.js'));
 require(path.join(ROOT, 'data', 'matches.js'));
+require(path.join(ROOT, 'data', 'results.js'));
 const MATCHES = global.window.MATCHES;
+const RESULTS = global.window.RESULTS || null;
+const RESOLVED = (RESULTS && RESULTS.resolved) || {};
+
+// Mirror app.js: knockout slots ("2A", "W73") read through to real codes once
+// the bracket fills in; group matches already carry real codes.
+function resolvedCodes(m) {
+  const r = RESOLVED[String(m.matchNumber)];
+  return { home: (r && r.home) || m.home, away: (r && r.away) || m.away };
+}
 
 const TIME_ZONE = 'Europe/Oslo';
 const BIG_TEAMS = new Set(['GER', 'BRA', 'ARG', 'ENG', 'FRA', 'ESP', 'POR']);
@@ -27,7 +37,8 @@ function asleep(lp) {
 }
 
 function passMyTeams(m, fav) {
-  return m.stage === 'group' && (fav.has(m.home) || fav.has(m.away));
+  const c = resolvedCodes(m);
+  return fav.has(c.home) || fav.has(c.away);
 }
 function passGoodHours(m, lp) { return !asleep(lp); }
 function passKeyKnockouts(m) { return ALWAYS.has(m.stage); }
@@ -59,7 +70,8 @@ const cases = [
   ['All four ON (= old behaviour)', count(ALL_ON), 57],
   ['None ON (show all)', count(NONE), 104],
   ['Only My teams, no favorites', count({ ...NONE, myTeams: true }), 0],
-  ['Only My teams + ESP favorite', count({ ...NONE, myTeams: true }, new Set(['ESP'])), 3],
+  // ESP: 3 group matches + its resolved Round-of-32 tie (match 84).
+  ['Only My teams + ESP favorite (group + resolved KO)', count({ ...NONE, myTeams: true }, new Set(['ESP'])), 4],
   ['Only Key knockouts', count({ ...NONE, keyKnockouts: true }), 8],
 ];
 
