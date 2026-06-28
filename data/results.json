@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-28T05:12:04Z",
+  "updatedAt": "2026-06-28T21:06:03Z",
   "results": {
     "1": {
       "status": "finished",
@@ -965,10 +965,6 @@
     ]
   },
   "resolved": {
-    "73": {
-      "home": "RSA",
-      "away": "CAN"
-    },
     "76": {
       "home": "BRA",
       "away": "JPN"
