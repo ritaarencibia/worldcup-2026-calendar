@@ -194,6 +194,111 @@ input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
 .standings-table tr.maybe .col-pos { box-shadow: inset 3px 0 0 #b9893a; }
 .standings-table td:last-child { font-weight: 700; }
 
+/* Bracket (knockout tree) ---------------------------------------------------
+   Flat columns (one per round) separated by connector columns. Each column is
+   justify-content:space-around so every box lands exactly on the midpoint of
+   its two feeders in the previous column — the alignment the elbows rely on.
+   The whole thing scrolls sideways on narrow screens (the classic bracket). */
+.bracket {
+  --bn-box-w: 168px;
+  --bn-gap: 30px;
+  overflow-x: auto;
+  padding-bottom: .5rem;
+}
+.bracket[hidden] { display: none; }
+
+.bracket-rounds {
+  display: flex;
+  width: max-content;
+  margin-bottom: .4rem;
+}
+.bracket-round-label {
+  flex: 0 0 auto;
+  width: var(--bn-box-w);
+  text-align: center;
+  font-size: .82rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+.bracket-round-label + .bracket-round-label { margin-left: var(--bn-gap); }
+
+.bracket-tree {
+  display: flex;
+  align-items: stretch;
+  width: max-content;
+}
+.bracket-col {
+  flex: 0 0 auto;
+  width: var(--bn-box-w);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+/* Connector column: one elbow per box in the round to the right. flex:1 sizes
+   each elbow to its slot, so the 50%-tall vertical bar spans the two feeders.
+   Four gradient layers draw it: vertical rail, two stubs to the feeders (left
+   half, at 25% / 75%), and one stub to the parent box (right half, at 50%). */
+.bracket-links {
+  flex: 0 0 auto;
+  width: var(--bn-gap);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+.bracket-link {
+  flex: 1 1 0;
+  background-repeat: no-repeat;
+  background-image:
+    linear-gradient(var(--border), var(--border)),
+    linear-gradient(var(--border), var(--border)),
+    linear-gradient(var(--border), var(--border)),
+    linear-gradient(var(--border), var(--border));
+  background-size: 2px 50%, 50% 2px, 50% 2px, 50% 2px;
+  background-position: 50% 50%, 0 25%, 0 75%, 100% 50%;
+}
+
+.bn-box {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: .35rem .45rem;
+  margin: .3rem 0;
+  font-size: .82rem;
+}
+.bn-box--live { border-color: #ff5a5f; }
+.bn-head {
+  color: var(--muted);
+  font-size: .68rem;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: .25rem;
+}
+.bn-team {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .4rem;
+  padding: .12rem 0;
+  color: var(--muted);
+}
+.bn-team + .bn-team { border-top: 1px solid rgba(255,255,255,.05); }
+.bn-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bn-score { font-variant-numeric: tabular-nums; font-weight: 700; }
+/* The side that went through: full colour + bold; the other stays dimmed. */
+.bn-team--win { color: var(--text); font-weight: 700; }
+/* A team the user follows gets the accent rail, mirroring the standings. */
+.bn-team--fav { box-shadow: inset 3px 0 0 var(--accent); padding-left: .4rem; }
+
+.bracket-bronze {
+  margin-top: 1.4rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  width: var(--bn-box-w);
+}
+.bracket-bronze .bracket-round-label { display: block; margin-bottom: .4rem; text-align: left; }
+
 /* Schedule */
 .day-header {
   font-size: 1.05rem; margin: 1.4rem 0 .5rem;

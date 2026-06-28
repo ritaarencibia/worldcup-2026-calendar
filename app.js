@@ -29,6 +29,7 @@ const STORAGE_KEY = 'wc2026.prefs.v1';
 const TEAMS = window.TEAMS || [];
 const MATCHES = window.MATCHES || [];
 const TEAM_BY_CODE = new Map(TEAMS.map((t) => [t.code, t]));
+const MATCH_BY_NUMBER = new Map(MATCHES.map((m) => [m.matchNumber, m]));
 
 // Live data (results + standings + bracket). Optional: if data/results.js is
 // missing or failed to load, the page degrades to the plain schedule.
@@ -383,6 +384,172 @@ function renderStandings() {
   }
 }
 
+// ---- Bracket (knockout tree) ----------------------------------------------
+// The crossings are derived purely from the placeholder labels already in the
+// data: a Round-of-16 box whose home slot is "W73" is fed by match 73. So the
+// whole tree shape is known from day one — long before any team is decided —
+// and `resolved` simply fills real teams in as the rounds are played.
+const KO_ROUNDS = ['final', 'sf', 'qf', 'r16', 'r32']; // walk root -> leaves
+
+// Match number feeding a winner slot ("W73" -> 73), or null for a group
+// placeholder ("2A") that has no upstream match.
+function feederNumber(label) {
+  const m = /^W(\d+)$/.exec(label || '');
+  return m ? Number(m[1]) : null;
+}
+
+// Top-to-bottom order of each round so that the two feeders of every box sit
+// directly above/below it. Built by walking down from the final: the children
+// of box N are listed as [feeder(home), feeder(away)], which keeps each pair
+// adjacent and lets space-around centre every box between its two feeders.
+function bracketOrder() {
+  const order = { final: [104] };
+  let cur = order.final;
+  for (const stage of ['sf', 'qf', 'r16', 'r32']) {
+    const next = [];
+    for (const num of cur) {
+      const m = MATCH_BY_NUMBER.get(num);
+      next.push(feederNumber(m.home), feederNumber(m.away));
+    }
+    order[stage] = next;
+    cur = next;
+  }
+  return order;
+}
+
+// Winner of a knockout box as a real team code, or null if not decided yet.
+// Robust against extra time / penalties: rather than judging the score, we read
+// which team the downstream box inherited into the matching "W{n}" slot. The
+// final has no downstream box, so there alone we fall back to the score.
+function knockoutWinner(match) {
+  const label = `W${match.matchNumber}`;
+  for (const d of MATCHES) {
+    if (d.home === label) {
+      const code = resolvedCodes(d).home;
+      return code === label ? null : code;
+    }
+    if (d.away === label) {
+      const code = resolvedCodes(d).away;
+      return code === label ? null : code;
+    }
+  }
+  const r = resultFor(match);
+  if (r && r.status === 'finished' && r.home !== r.away) {
+    const codes = resolvedCodes(match);
+    return r.home > r.away ? codes.home : codes.away;
+  }
+  return null;
+}
+
+function bracketTeamRow(code, fallbackLabel, score, isWinner, isFav) {
+  const row = document.createElement('div');
+  row.className =
+    'bn-team' + (isWinner ? ' bn-team--win' : '') + (isFav ? ' bn-team--fav' : '');
+  const name = document.createElement('span');
+  name.className = 'bn-name';
+  const team = TEAM_BY_CODE.get(code);
+  name.textContent = team ? `${team.flag} ${team.name}` : fallbackLabel;
+  row.appendChild(name);
+  if (score !== null) {
+    const s = document.createElement('span');
+    s.className = 'bn-score';
+    s.textContent = score;
+    row.appendChild(s);
+  }
+  return row;
+}
+
+function bracketBox(match) {
+  const codes = resolvedCodes(match);
+  const r = resultFor(match);
+  const finished = !!(r && r.status === 'finished');
+  const winner = knockoutWinner(match);
+  const favorites = new Set(prefs.favorites);
+
+  const box = document.createElement('div');
+  box.className = 'bn-box' + (isLive(match) ? ' bn-box--live' : '');
+
+  const head = document.createElement('div');
+  head.className = 'bn-head';
+  const lp = localParts(match.kickoffUtc);
+  head.textContent = finished ? 'FT' : `${lp.day}/${lp.month} · ${lp.time}`;
+  if (isLive(match)) head.textContent = '🔴 LIVE';
+  box.appendChild(head);
+
+  box.appendChild(
+    bracketTeamRow(codes.home, match.homeLabel, finished ? r.home : null,
+      winner === codes.home, favorites.has(codes.home)));
+  box.appendChild(
+    bracketTeamRow(codes.away, match.awayLabel, finished ? r.away : null,
+      winner === codes.away, favorites.has(codes.away)));
+  return box;
+}
+
+function bracketColumn(numbers) {
+  const col = document.createElement('div');
+  col.className = 'bracket-col';
+  for (const num of numbers) col.appendChild(bracketBox(MATCH_BY_NUMBER.get(num)));
+  return col;
+}
+
+// A column of elbow connectors sitting between two rounds. One elbow per box in
+// the round to the right; space-around lines each elbow up with its box, and
+// flex:1 sizes each elbow so its vertical bar exactly spans the two feeders.
+function bracketLinks(count) {
+  const col = document.createElement('div');
+  col.className = 'bracket-links';
+  for (let i = 0; i < count; i += 1) {
+    const link = document.createElement('div');
+    link.className = 'bracket-link';
+    col.appendChild(link);
+  }
+  return col;
+}
+
+function renderBracket() {
+  const container = document.getElementById('bracket');
+  container.innerHTML = '';
+  if (!MATCH_BY_NUMBER.has(104)) {
+    container.innerHTML = '<p class="empty">Bracket data unavailable.</p>';
+    return;
+  }
+  const order = bracketOrder();
+
+  // Round labels, left (Round of 32) to right (Final), aligned over each column.
+  const labels = document.createElement('div');
+  labels.className = 'bracket-rounds';
+  for (const stage of [...KO_ROUNDS].reverse()) {
+    const span = document.createElement('span');
+    span.className = 'bracket-round-label';
+    span.textContent = STAGE_LABELS[stage];
+    labels.appendChild(span);
+  }
+  container.appendChild(labels);
+
+  // Columns left->right with a connector column between each pair of rounds.
+  const tree = document.createElement('div');
+  tree.className = 'bracket-tree';
+  const cols = ['r32', 'r16', 'qf', 'sf', 'final'];
+  cols.forEach((stage, i) => {
+    tree.appendChild(bracketColumn(order[stage]));
+    if (i < cols.length - 1) tree.appendChild(bracketLinks(order[cols[i + 1]].length));
+  });
+  container.appendChild(tree);
+
+  // Third-place play-off lives outside the winners' tree, shown on its own.
+  const bronze = MATCH_BY_NUMBER.get(103);
+  if (bronze) {
+    const wrap = document.createElement('div');
+    wrap.className = 'bracket-bronze';
+    const label = document.createElement('span');
+    label.className = 'bracket-round-label';
+    label.textContent = STAGE_LABELS.bronze;
+    wrap.appendChild(label);
+    wrap.appendChild(bracketBox(bronze));
+    container.appendChild(wrap);
+  }
+}
+
 function renderUpdatedAt() {
   const el = document.getElementById('updated-at');
   if (!el) return;
@@ -398,14 +565,20 @@ function renderUpdatedAt() {
   el.textContent = `Results updated ${fmt.format(when)} CEST`;
 }
 
+const TABS = {
+  matches: { panel: 'schedule', button: 'tab-matches' },
+  standings: { panel: 'standings', button: 'tab-standings' },
+  bracket: { panel: 'bracket', button: 'tab-bracket' },
+};
+
 function showTab(tab) {
-  prefs.tab = tab;
+  const active = TABS[tab] ? tab : 'matches';
+  prefs.tab = active;
   savePrefs();
-  const isMatches = tab !== 'standings';
-  document.getElementById('schedule').hidden = !isMatches;
-  document.getElementById('standings').hidden = isMatches;
-  document.getElementById('tab-matches').classList.toggle('active', isMatches);
-  document.getElementById('tab-standings').classList.toggle('active', !isMatches);
+  for (const [name, { panel, button }] of Object.entries(TABS)) {
+    document.getElementById(panel).hidden = name !== active;
+    document.getElementById(button).classList.toggle('active', name === active);
+  }
 }
 
 // ---- Favorites (typeahead) -------------------------------------------------
@@ -657,16 +830,21 @@ function init() {
 
   document.getElementById('tab-matches').addEventListener('click', () => showTab('matches'));
   document.getElementById('tab-standings').addEventListener('click', () => showTab('standings'));
+  document.getElementById('tab-bracket').addEventListener('click', () => showTab('bracket'));
 
   renderFavorites();
   renderSchedule();
   renderStandings();
+  renderBracket();
   renderUpdatedAt();
   showTab(prefs.tab);
 
   // Re-render once a minute so the LIVE badge appears/clears as kickoffs pass
   // and matches end — the only moving part on this otherwise static page.
-  setInterval(renderSchedule, 60 * 1000);
+  setInterval(() => {
+    renderSchedule();
+    renderBracket();
+  }, 60 * 1000);
 }
 
 document.addEventListener('DOMContentLoaded', init);
