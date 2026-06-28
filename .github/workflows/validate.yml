@@ -22,6 +22,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
       - name: Knockout slot mapping (32 boxes -> match numbers)
         run: python scripts/verify_knockout_mapping.py
 
