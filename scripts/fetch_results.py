@@ -138,38 +138,73 @@ def parse_slot(text):
     return None
 
 
-def knockout_numbers(fb, ko_index):
-    """Return (num_from_label, num_from_slots) for a knockout football box.
-
-    - num_from_label: the 'Match NN' shown in the score cell while unplayed.
-    - num_from_slots: derived from the slot heading id (stable once played).
-    Either may be None; they should agree when both are present.
-    """
-    num_label = None
-    score_el = fb.find(class_="fscore")
-    if score_el:
-        m = re.search(r"match\s*(\d+)", score_el.get_text(" ", strip=True), re.I)
-        if m:
-            num_label = int(m.group(1))
-
-    num_slots = None
-    for anc in [fb] + fb.find_parents():
-        ident = anc.get("id") or ""
-        if "_v_" in ident:
-            left, _, right = ident.partition("_v_")
-            s1, s2 = parse_slot(left), parse_slot(right)
-            if s1 and s2:
-                num_slots = ko_index.get(frozenset((s1, s2)))
-            break
-    return num_label, num_slots
-
-
 def cell_team_name(cell):
     """Prefer the linked country name; fall back to cleaned cell text."""
     a = cell.find("a")
     if a and a.get_text(strip=True):
         return a.get_text(strip=True)
     return cell.get_text(" ", strip=True)
+
+
+def code_slots_from_standings(standings):
+    """Map each team code to its group-slot token from the final standings:
+    1st -> '1A', 2nd -> '2A', 3rd -> '3A'. Only positions 1-3 matter for the
+    knockout placeholders. Groups that haven't finished simply contribute
+    nothing, so their slots stay unresolved."""
+    out = {}
+    for letter, rows in standings.items():
+        for row in rows:
+            if row["pos"] in (1, 2, 3):
+                out[row["code"]] = f"{row['pos']}{letter}"
+    return out
+
+
+def third_tokens_by_letter(ko_index):
+    """Map a single group letter to the multi-group 3rd-place tokens that a
+    fixture actually uses, e.g. 'A' -> {'3ABCDF', '3AEHIJ', '3CEFHI'...}. A
+    third-placed team carries a single-group token ('3A'); this lets us widen it
+    to the '3ABCDF'-style token its fixture is keyed by."""
+    out = {}
+    for pair in ko_index:
+        for tok in pair:
+            if tok.startswith("3") and len(tok) > 2:
+                for ch in tok[1:]:
+                    out.setdefault(ch, set()).add(tok)
+    return out
+
+
+def match_for_teams(hc, ac, ko_index, code_slot, third_by_letter):
+    """Match number for a knockout box showing two REAL teams, derived purely
+    from their group finishing positions. This is robust to Wikipedia swapping
+    the slot labels ('Runner-up Group A') and the 'Match NN' text for the team
+    names the instant a match kicks off — which used to drop a played match back
+    to its placeholder (e.g. 73 -> '2A v 2B'). Returns None when a side isn't a
+    group 1st/2nd/3rd (both sides are knockout winners) or the pair is no
+    fixture."""
+    sh, sa = code_slot.get(hc), code_slot.get(ac)
+    if not (sh and sa):
+        return None
+    # 1st/2nd tokens are used verbatim; widen a single-group 3rd token to the
+    # multi-group token a fixture is actually keyed by.
+    cand_h = {sh} | (third_by_letter.get(sh[1], set()) if sh[0] == "3" else set())
+    cand_a = {sa} | (third_by_letter.get(sa[1], set()) if sa[0] == "3" else set())
+    for x in cand_h:
+        for y in cand_a:
+            num = ko_index.get(frozenset((x, y)))
+            if num:
+                return num
+    return None
+
+
+def winner_code(num, resolved, results):
+    """Real code of the team that won knockout match `num`, or None if it isn't
+    decided yet. Reads the resolved teams plus the scored result, so it works for
+    extra time / penalties only when the recorded score already separates them."""
+    rc = resolved.get(str(num))
+    r = results.get(str(num))
+    if rc and r and r.get("status") == "finished" and r["home"] != r["away"]:
+        return rc["home"] if r["home"] > r["away"] else rc["away"]
+    return None
 
 
 def parse_standings(soup):
@@ -284,41 +319,86 @@ def main():
                 "status": "finished", "home": home_goals, "away": away_goals,
             }
 
-    # --- Knockout stage: resolved matchups + scores (best-effort, optional) ---
-    # Failures here must NOT abort the results/standings update.
+    # --- Knockout stage: resolved matchups + scores ----------------------------
+    # Resolution is deterministic wherever possible — group slots come from the
+    # standings, winners propagate from earlier rounds — and the scraped bracket
+    # is consulted only for what determinism can't give us: the 3rd-place teams'
+    # identities and the actual scores. Crucially, a box is matched to its fixture
+    # by the TEAMS it shows, never by the "Match NN" label or slot heading id:
+    # Wikipedia drops both the moment a match kicks off, which previously made a
+    # just-played match vanish back to its placeholder (e.g. 73 -> "2A v 2B").
     resolved = {}
+    ko_index = {
+        frozenset((m["home"], m["away"])): m["matchNumber"]
+        for m in matches if m["stage"] != "group"
+    }
+    ko_matches = {m["matchNumber"]: m for m in matches if m["stage"] != "group"}
+    code_slot = code_slots_from_standings(standings)
+    slot_code = {slot: code for code, slot in code_slot.items()}
+    third_by_letter = third_tokens_by_letter(ko_index)
+
+    # Scrape the bracket only for the 3rd-place teams and the scores. Keyed by the
+    # pair of real teams a box shows, so nothing depends on the fragile heading.
+    box_score = {}   # frozenset(home, away code) -> (home_goals, away_goals)
+    box_teams = []   # [(home_code, away_code)] for every box with two real teams
     try:
         time.sleep(1.0)
         ko_soup = BeautifulSoup(fetch_html(KNOCKOUT_TITLE), "html.parser")
-        ko_index = {
-            frozenset((m["home"], m["away"])): m["matchNumber"]
-            for m in matches if m["stage"] != "group"
-        }
         boxes = ko_soup.select(".footballbox")
-        mismatches = 0
         for fb in boxes:
-            num_label, num_slots = knockout_numbers(fb, ko_index)
-            if num_label and num_slots and num_label != num_slots:
-                mismatches += 1
-            num = num_label or num_slots
-            if not num:
-                continue
             home_el = fb.find(class_="fhome")
             away_el = fb.find(class_="faway")
-            hc = name_to_code.get(normalize(home_el.get_text(" ", strip=True))) if home_el else None
-            ac = name_to_code.get(normalize(away_el.get_text(" ", strip=True))) if away_el else None
-            if hc and ac:  # both sides resolved to real teams
-                resolved[str(num)] = {"home": hc, "away": ac}
+            hc = name_to_code.get(normalize(cell_team_name(home_el))) if home_el else None
+            ac = name_to_code.get(normalize(cell_team_name(away_el))) if away_el else None
+            if not (hc and ac):
+                continue  # still a placeholder box ("Runners-up Group A") -> skip
+            box_teams.append((hc, ac))
             score_el = fb.find(class_="fscore")
             goals = parse_score(score_el.get_text(" ", strip=True)) if score_el else None
-            if goals and hc and ac:  # only trust a knockout score once teams are known
-                results[str(num)] = {"status": "finished", "home": goals[0], "away": goals[1]}
-        print(f"Knockout: {len(boxes)} boxes, {len(resolved)} resolved, "
-              f"slot/label mismatches: {mismatches}")
-        if mismatches:
-            warnings.append(f"knockout: {mismatches} slot/label number mismatch(es)")
+            if goals:
+                box_score[frozenset((hc, ac))] = goals
+        print(f"Knockout: {len(boxes)} boxes, {len(box_teams)} with real teams, "
+              f"{len(box_score)} scored")
     except Exception as exc:
-        warnings.append(f"knockout fetch/parse failed: {exc} (bracket left unresolved)")
+        warnings.append(f"knockout fetch/parse failed: {exc} (bracket left to standings)")
+
+    # Seed the 3rd-place fixtures (and any group fixture) straight from the boxes:
+    # match_for_teams reads both teams off the box, so the 3rd-place side it can't
+    # be computed from standings is captured here.
+    for hc, ac in box_teams:
+        num = match_for_teams(hc, ac, ko_index, code_slot, third_by_letter)
+        if num:
+            resolved[str(num)] = {"home": hc, "away": ac}
+
+    def resolve_label(label):
+        """Real code for a placeholder slot, or None if not decided yet."""
+        m = re.fullmatch(r"W(\d+)", label or "")
+        if m:
+            return winner_code(int(m.group(1)), resolved, results)
+        return slot_code.get(label)  # '1A'/'2B' -> code; '3ABCDF'-style -> None
+
+    # Fill every computable fixture and propagate winners to a fixpoint: group
+    # slots from the standings, "W{n}" slots from the winner of match n. Scores
+    # are attached by the team pair, so a match resolved here still gets its
+    # result, and a fresh result can unlock the next round on the following pass.
+    changed = True
+    while changed:
+        changed = False
+        for num, m in ko_matches.items():
+            key = str(num)
+            if key not in resolved:
+                hc = resolve_label(m["home"])
+                ac = resolve_label(m["away"])
+                if hc and ac:
+                    resolved[key] = {"home": hc, "away": ac}
+                    changed = True
+            rc = resolved.get(key)
+            if rc and key not in results:
+                goals = box_score.get(frozenset((rc["home"], rc["away"])))
+                if goals:
+                    results[key] = {"status": "finished",
+                                    "home": goals[0], "away": goals[1]}
+                    changed = True
 
     for w in warnings:
         print(f"WARN  {w}", file=sys.stderr)

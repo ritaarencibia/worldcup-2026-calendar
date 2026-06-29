@@ -2,13 +2,19 @@
 """Offline check: the knockout slot-heading parser maps each of the 32 boxes to
 the correct match number. Pairs (slot id -> match number) were observed from the
 live knockout-stage article on 2026-06-12; this validates parse_slot + the
-matches.json index without needing the network."""
+matches.json index without needing the network.
+
+Also guards the regression where a PLAYED knockout box drops its slot labels and
+'Match NN' text for team names: match_for_teams must still map the box to its
+fixture from the teams' group positions alone."""
 import json
 import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from fetch_results import parse_slot  # noqa: E402
+from fetch_results import (  # noqa: E402
+    parse_slot, code_slots_from_standings, third_tokens_by_letter, match_for_teams,
+)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 with open(os.path.join(ROOT, "data", "matches.json"), encoding="utf-8") as f:
@@ -66,4 +72,36 @@ for ident, expected in OBSERVED.items():
 
 print(f"checked {len(OBSERVED)} knockout boxes")
 print("OK: every knockout slot heading maps to the right match number" if ok else "MISMATCHES FOUND")
+
+# --- Played-box regression guard --------------------------------------------
+# Once a knockout match kicks off, Wikipedia replaces both the slot heading id
+# and the 'Match NN' text with the team names. match_for_teams must still find
+# the fixture from the teams' group finishing positions. Standings below place
+# each code at a known position; (home, away) -> expected match number.
+STANDINGS = {
+    "A": [{"code": "MEX", "pos": 1}, {"code": "RSA", "pos": 2}, {"code": "KOR", "pos": 3}, {"code": "CZE", "pos": 4}],
+    "B": [{"code": "SUI", "pos": 1}, {"code": "CAN", "pos": 2}, {"code": "BIH", "pos": 3}, {"code": "QAT", "pos": 4}],
+    "C": [{"code": "NED", "pos": 1}, {"code": "SCO", "pos": 2}, {"code": "EGY", "pos": 3}, {"code": "GHA", "pos": 4}],
+    "E": [{"code": "GER", "pos": 1}, {"code": "POL", "pos": 2}, {"code": "JPN", "pos": 3}, {"code": "VEN", "pos": 4}],
+    "F": [{"code": "ESP", "pos": 1}, {"code": "URY", "pos": 2}, {"code": "TUN", "pos": 3}, {"code": "NZL", "pos": 4}],
+}
+code_slot = code_slots_from_standings(STANDINGS)
+third_by_letter = third_tokens_by_letter(ko_index)
+
+# (home_code, away_code) -> expected match number, for a played (label-less) box.
+PLAYED = {
+    ("RSA", "CAN"): 73,   # 2A v 2B  -> two runners-up
+    ("CAN", "RSA"): 73,   # order-independent
+    ("NED", "URY"): 76,   # 1C v 2F
+    ("ESP", "SCO"): 75,   # 1F v 2C
+    ("GER", "EGY"): 74,   # 1E v 3rd-of-C (EGY is 3C, fixture token is '3ABCDF')
+}
+for (hc, ac), expected in PLAYED.items():
+    got = match_for_teams(hc, ac, ko_index, code_slot, third_by_letter)
+    if got != expected:
+        ok = False
+        print(f"FAIL  played box {hc} v {ac} -> {got}, expected {expected}")
+print(f"checked {len(PLAYED)} played (label-less) boxes")
+
+print("OK: played knockout boxes resolve from team positions" if ok else "MISMATCHES FOUND")
 sys.exit(0 if ok else 1)
