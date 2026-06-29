@@ -1025,6 +1025,10 @@ window.RESULTS = {
     "87": {
       "home": "COL",
       "away": "GHA"
+    },
+    "73": {
+      "home": "RSA",
+      "away": "CAN"
     }
   }
 };
