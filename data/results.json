@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-28T21:06:03Z",
+  "updatedAt": "2026-06-29T21:38:03Z",
   "results": {
     "1": {
       "status": "finished",
@@ -357,6 +357,16 @@
       "away": 2
     },
     "68": {
+      "status": "finished",
+      "home": 2,
+      "away": 1
+    },
+    "73": {
+      "status": "finished",
+      "home": 0,
+      "away": 1
+    },
+    "76": {
       "status": "finished",
       "home": 2,
       "away": 1
@@ -965,6 +975,10 @@
     ]
   },
   "resolved": {
+    "73": {
+      "home": "RSA",
+      "away": "CAN"
+    },
     "76": {
       "home": "BRA",
       "away": "JPN"
@@ -1024,10 +1038,6 @@
     "87": {
       "home": "COL",
       "away": "GHA"
-    },
-    "73": {
-      "home": "RSA",
-      "away": "CAN"
     }
   }
 }
