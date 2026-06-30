@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-30T10:31:02Z",
+  "updatedAt": "2026-06-30T21:32:04Z",
   "results": {
     "1": {
       "status": "finished",
@@ -382,6 +382,11 @@
       "home": 1,
       "away": 1,
       "penWinner": "MAR"
+    },
+    "78": {
+      "status": "finished",
+      "home": 1,
+      "away": 2
     }
   },
   "standings": {
@@ -1059,7 +1064,8 @@
       "home": "PAR"
     },
     "91": {
-      "home": "BRA"
+      "home": "BRA",
+      "away": "NOR"
     }
   }
 }
