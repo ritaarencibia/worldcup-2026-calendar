@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-30T21:32:04Z",
+  "updatedAt": "2026-06-30T23:04:03Z",
   "results": {
     "1": {
       "status": "finished",
@@ -1013,8 +1013,8 @@
       "away": "NOR"
     },
     "77": {
-      "home": "FRA",
-      "away": "SWE"
+      "home": "PAR",
+      "away": "FRA"
     },
     "79": {
       "home": "MEX",
