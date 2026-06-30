@@ -132,5 +132,22 @@ ok = check("box 90 fully resolved once both feeders decided",
            box90.get("home") == "RSA" and box90.get("away") == "ESP") and ok
 print(f"checked partial-resolution propagation for box 90")
 
-print("OK: partial knockout resolution propagates winners" if ok else "MISMATCHES FOUND")
+# --- Penalty-shootout winners advance --------------------------------------
+# A drawn knockout (here match 78 = 2E v 2I, NED 1-1 MAR) is decided on
+# penalties; the shootout winner must still advance. Match 91 = W76 v W78, so
+# the winner of 78 fills box 91's W78 (away) side.
+resolved = {"78": {"home": "NED", "away": "MAR"}}
+results = {}
+box_score = {frozenset(("NED", "MAR")): (1, 1)}
+box_pen_winner = {frozenset(("NED", "MAR")): "MAR"}
+propagate_knockout(ko_matches, {}, resolved, results, box_score, box_pen_winner)
+
+r78 = results.get("78", {})
+ok = check("drawn match 78 recorded as finished 1-1", r78.get("home") == 1 and r78.get("away") == 1) and ok
+ok = check("match 78 carries penWinner MAR", r78.get("penWinner") == "MAR") and ok
+ok = check("penalty winner MAR advances into box 91 (W78 side)",
+           resolved.get("91", {}).get("away") == "MAR") and ok
+print("checked penalty-shootout propagation for box 78 -> 91")
+
+print("OK: knockout resolution propagates partial + penalty winners" if ok else "MISMATCHES FOUND")
 sys.exit(0 if ok else 1)

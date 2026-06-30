@@ -110,6 +110,27 @@ def parse_score(text):
     return int(m.group(1)), int(m.group(2))
 
 
+def parse_penalties(fb):
+    """(home_pens, away_pens) for a football box decided by a shootout, else None.
+
+    A drawn knockout is settled on penalties; Wikipedia renders the regulation
+    score first ("1–1 (a.e.t.)") and then, after a "Penalties" label, the shootout
+    score in the same home–away order ("1–3"). So we take the first score that
+    follows the "Penalt" marker. Goals are compared elsewhere; this is only read to
+    break a tie, so we ignore it unless it is a plausible shootout tally."""
+    txt = fb.get_text(" ", strip=True)
+    idx = txt.lower().find("penalt")
+    if idx < 0:
+        return None
+    m = SCORE_RE.search(txt, idx)
+    if not m:
+        return None
+    h, a = int(m.group(1)), int(m.group(2))
+    if h > 30 or a > 30:  # not a shootout tally — guard against a stray number
+        return None
+    return h, a
+
+
 def parse_slot(text):
     """Map a knockout slot label to our placeholder token.
 
@@ -200,16 +221,20 @@ def match_for_teams(hc, ac, ko_index, code_slot, third_by_letter):
 
 def winner_code(num, resolved, results):
     """Real code of the team that won knockout match `num`, or None if it isn't
-    decided yet. Reads the resolved teams plus the scored result, so it works for
-    extra time / penalties only when the recorded score already separates them."""
+    decided yet. Reads the resolved teams plus the scored result. A clear score
+    names the winner directly; a draw was settled on penalties, so we fall back to
+    the recorded shootout winner (`penWinner`)."""
     rc = resolved.get(str(num))
     r = results.get(str(num))
-    if rc and r and r.get("status") == "finished" and r["home"] != r["away"]:
+    if not (rc and r and r.get("status") == "finished"):
+        return None
+    if r["home"] != r["away"]:
         return rc.get("home") if r["home"] > r["away"] else rc.get("away")
-    return None
+    return r.get("penWinner")  # drawn after extra time -> won on penalties
 
 
-def propagate_knockout(ko_matches, slot_code, resolved, results, box_score):
+def propagate_knockout(ko_matches, slot_code, resolved, results, box_score,
+                       box_pen_winner=None):
     """Fill knockout fixtures and propagate winners to a fixpoint, mutating
     `resolved` and `results` in place.
 
@@ -218,7 +243,10 @@ def propagate_knockout(ko_matches, slot_code, resolved, results, box_score):
     match's winner appears in the next round's box the moment it is decided,
     even while that box's other feeder is still a placeholder. Scores are keyed
     by the team pair, so they only attach once both sides are known, and a fresh
-    result can unlock the next round on a following pass."""
+    result can unlock the next round on a following pass. A drawn tie carries its
+    penalty-shootout winner (`box_pen_winner`) into the result as `penWinner` so
+    it still advances a team."""
+    box_pen_winner = box_pen_winner or {}
     def resolve_label(label):
         """Real code for a placeholder slot, or None if not decided yet."""
         m = re.fullmatch(r"W(\d+)", label or "")
@@ -245,10 +273,15 @@ def propagate_knockout(ko_matches, slot_code, resolved, results, box_score):
             if rc:
                 resolved[key] = rc
             if rc.get("home") and rc.get("away") and key not in results:
-                goals = box_score.get(frozenset((rc["home"], rc["away"])))
+                pair = frozenset((rc["home"], rc["away"]))
+                goals = box_score.get(pair)
                 if goals:
-                    results[key] = {"status": "finished",
-                                    "home": goals[0], "away": goals[1]}
+                    entry = {"status": "finished",
+                             "home": goals[0], "away": goals[1]}
+                    pw = box_pen_winner.get(pair)
+                    if pw:
+                        entry["penWinner"] = pw
+                    results[key] = entry
                     changed = True
 
 
@@ -384,8 +417,9 @@ def main():
 
     # Scrape the bracket only for the 3rd-place teams and the scores. Keyed by the
     # pair of real teams a box shows, so nothing depends on the fragile heading.
-    box_score = {}   # frozenset(home, away code) -> (home_goals, away_goals)
-    box_teams = []   # [(home_code, away_code)] for every box with two real teams
+    box_score = {}        # frozenset(home, away code) -> (home_goals, away_goals)
+    box_pen_winner = {}   # frozenset(pair) -> code that won the penalty shootout
+    box_teams = []        # [(home_code, away_code)] for every box with two real teams
     try:
         time.sleep(1.0)
         ko_soup = BeautifulSoup(fetch_html(KNOCKOUT_TITLE), "html.parser")
@@ -402,8 +436,13 @@ def main():
             goals = parse_score(score_el.get_text(" ", strip=True)) if score_el else None
             if goals:
                 box_score[frozenset((hc, ac))] = goals
+                # A drawn knockout is decided on penalties: record the shootout
+                # winner so the tie still advances a team to the next round.
+                pens = parse_penalties(fb)
+                if goals[0] == goals[1] and pens and pens[0] != pens[1]:
+                    box_pen_winner[frozenset((hc, ac))] = hc if pens[0] > pens[1] else ac
         print(f"Knockout: {len(boxes)} boxes, {len(box_teams)} with real teams, "
-              f"{len(box_score)} scored")
+              f"{len(box_score)} scored, {len(box_pen_winner)} on penalties")
     except Exception as exc:
         warnings.append(f"knockout fetch/parse failed: {exc} (bracket left to standings)")
 
@@ -415,7 +454,8 @@ def main():
         if num:
             resolved[str(num)] = {"home": hc, "away": ac}
 
-    propagate_knockout(ko_matches, slot_code, resolved, results, box_score)
+    propagate_knockout(ko_matches, slot_code, resolved, results, box_score,
+                       box_pen_winner)
 
     for w in warnings:
         print(f"WARN  {w}", file=sys.stderr)
