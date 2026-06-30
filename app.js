@@ -451,9 +451,10 @@ function knockoutWinner(match) {
     }
   }
   const r = resultFor(match);
-  if (r && r.status === 'finished' && r.home !== r.away) {
+  if (r && r.status === 'finished') {
     const codes = resolvedCodes(match);
-    return r.home > r.away ? codes.home : codes.away;
+    if (r.home !== r.away) return r.home > r.away ? codes.home : codes.away;
+    if (r.penWinner) return r.penWinner; // drawn after extra time -> on penalties
   }
   return null;
 }
@@ -489,7 +490,9 @@ function bracketBox(match) {
   const head = document.createElement('div');
   head.className = 'bn-head';
   const lp = localParts(match.kickoffUtc);
-  head.textContent = finished ? 'FT' : `${lp.day}/${lp.month} · ${lp.time}`;
+  head.textContent = finished
+    ? (r && r.penWinner ? 'FT (pens)' : 'FT')
+    : `${lp.day}/${lp.month} · ${lp.time}`;
   if (isLive(match)) head.textContent = '🔴 LIVE';
   box.appendChild(head);
 
