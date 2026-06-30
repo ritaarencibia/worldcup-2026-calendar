@@ -11,10 +11,12 @@ the run aborts WITHOUT overwriting the existing data/results.js, so the site kee
 serving the last good snapshot instead of going blank.
 
 Knockout resolution is best-effort: it reads the knockout-stage article and emits
-`resolved` (knockout matchNumber -> real team codes) for any match whose slots are
-already filled, plus knockout scores. Until the group stage ends (25 Jun 2026)
-those slots are placeholders, so `resolved` stays empty. Knockout parsing failures
-never abort the results/standings update.
+`resolved` (knockout matchNumber -> real team codes), resolving each side of a tie
+independently so a match's winner appears in the next round's box as soon as it is
+decided, even while that box's other feeder is still undecided (one side may be a
+real code while the other stays a placeholder). It also emits knockout scores.
+Until the group stage ends (25 Jun 2026) the slots are placeholders, so `resolved`
+stays empty. Knockout parsing failures never abort the results/standings update.
 """
 import json
 import os
@@ -203,8 +205,51 @@ def winner_code(num, resolved, results):
     rc = resolved.get(str(num))
     r = results.get(str(num))
     if rc and r and r.get("status") == "finished" and r["home"] != r["away"]:
-        return rc["home"] if r["home"] > r["away"] else rc["away"]
+        return rc.get("home") if r["home"] > r["away"] else rc.get("away")
     return None
+
+
+def propagate_knockout(ko_matches, slot_code, resolved, results, box_score):
+    """Fill knockout fixtures and propagate winners to a fixpoint, mutating
+    `resolved` and `results` in place.
+
+    Group slots come from the standings ('1A'/'2B' -> code); "W{n}" slots from
+    the winner of match n. Each SIDE of a tie is resolved independently, so a
+    match's winner appears in the next round's box the moment it is decided,
+    even while that box's other feeder is still a placeholder. Scores are keyed
+    by the team pair, so they only attach once both sides are known, and a fresh
+    result can unlock the next round on a following pass."""
+    def resolve_label(label):
+        """Real code for a placeholder slot, or None if not decided yet."""
+        m = re.fullmatch(r"W(\d+)", label or "")
+        if m:
+            return winner_code(int(m.group(1)), resolved, results)
+        return slot_code.get(label)  # '1A'/'2B' -> code; '3ABCDF'-style -> None
+
+    changed = True
+    while changed:
+        changed = False
+        for num, m in ko_matches.items():
+            key = str(num)
+            rc = dict(resolved.get(key, {}))
+            if not rc.get("home"):
+                hc = resolve_label(m["home"])
+                if hc:
+                    rc["home"] = hc
+                    changed = True
+            if not rc.get("away"):
+                ac = resolve_label(m["away"])
+                if ac:
+                    rc["away"] = ac
+                    changed = True
+            if rc:
+                resolved[key] = rc
+            if rc.get("home") and rc.get("away") and key not in results:
+                goals = box_score.get(frozenset((rc["home"], rc["away"])))
+                if goals:
+                    results[key] = {"status": "finished",
+                                    "home": goals[0], "away": goals[1]}
+                    changed = True
 
 
 def parse_standings(soup):
@@ -370,35 +415,7 @@ def main():
         if num:
             resolved[str(num)] = {"home": hc, "away": ac}
 
-    def resolve_label(label):
-        """Real code for a placeholder slot, or None if not decided yet."""
-        m = re.fullmatch(r"W(\d+)", label or "")
-        if m:
-            return winner_code(int(m.group(1)), resolved, results)
-        return slot_code.get(label)  # '1A'/'2B' -> code; '3ABCDF'-style -> None
-
-    # Fill every computable fixture and propagate winners to a fixpoint: group
-    # slots from the standings, "W{n}" slots from the winner of match n. Scores
-    # are attached by the team pair, so a match resolved here still gets its
-    # result, and a fresh result can unlock the next round on the following pass.
-    changed = True
-    while changed:
-        changed = False
-        for num, m in ko_matches.items():
-            key = str(num)
-            if key not in resolved:
-                hc = resolve_label(m["home"])
-                ac = resolve_label(m["away"])
-                if hc and ac:
-                    resolved[key] = {"home": hc, "away": ac}
-                    changed = True
-            rc = resolved.get(key)
-            if rc and key not in results:
-                goals = box_score.get(frozenset((rc["home"], rc["away"])))
-                if goals:
-                    results[key] = {"status": "finished",
-                                    "home": goals[0], "away": goals[1]}
-                    changed = True
+    propagate_knockout(ko_matches, slot_code, resolved, results, box_score)
 
     for w in warnings:
         print(f"WARN  {w}", file=sys.stderr)

@@ -14,6 +14,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from fetch_results import (  # noqa: E402
     parse_slot, code_slots_from_standings, third_tokens_by_letter, match_for_teams,
+    propagate_knockout,
 )
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -104,4 +105,32 @@ for (hc, ac), expected in PLAYED.items():
 print(f"checked {len(PLAYED)} played (label-less) boxes")
 
 print("OK: played knockout boxes resolve from team positions" if ok else "MISMATCHES FOUND")
+
+# --- Partial-resolution propagation -----------------------------------------
+# When a knockout match is won, its winner must fill the matching "W{n}" slot in
+# the next round's box right away, even while that box's OTHER feeder is still
+# undecided. Match 90 = W73 v W75; match 73 = 2A v 2B; match 75 = 1F v 2C.
+ko_matches = {m["matchNumber"]: m for m in matches if m["stage"] != "group"}
+
+# Round of 32 match 73 is finished (home wins); 75 not yet played.
+resolved = {"73": {"home": "RSA", "away": "CAN"}}
+results = {"73": {"status": "finished", "home": 2, "away": 1}}
+propagate_knockout(ko_matches, {}, resolved, results, {})
+
+box90 = resolved.get("90", {})
+check = lambda name, cond: (print(f"{'OK ' if cond else 'FAIL'}  {name}"), cond)[1]
+ok = check("winner of 73 (RSA) fills its side of box 90", box90.get("home") == "RSA") and ok
+ok = check("box 90 other side stays unresolved (W75 undecided)", "away" not in box90) and ok
+ok = check("box 90 has no score while half-resolved", "90" not in results) and ok
+
+# Now 75 finishes too (1F wins): box 90 must become fully resolved.
+resolved["75"] = {"home": "ESP", "away": "SCO"}
+results["75"] = {"status": "finished", "home": 3, "away": 0}
+propagate_knockout(ko_matches, {}, resolved, results, {})
+box90 = resolved.get("90", {})
+ok = check("box 90 fully resolved once both feeders decided",
+           box90.get("home") == "RSA" and box90.get("away") == "ESP") and ok
+print(f"checked partial-resolution propagation for box 90")
+
+print("OK: partial knockout resolution propagates winners" if ok else "MISMATCHES FOUND")
 sys.exit(0 if ok else 1)
