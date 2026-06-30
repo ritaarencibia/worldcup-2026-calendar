@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-06-30T06:54:04Z",
+  "updatedAt": "2026-06-30T10:31:02Z",
   "results": {
     "1": {
       "status": "finished",
@@ -374,12 +374,14 @@
     "74": {
       "status": "finished",
       "home": 1,
-      "away": 1
+      "away": 1,
+      "penWinner": "PAR"
     },
     "75": {
       "status": "finished",
       "home": 1,
-      "away": 1
+      "away": 1,
+      "penWinner": "MAR"
     }
   },
   "standings": {
@@ -1050,7 +1052,11 @@
       "away": "GHA"
     },
     "90": {
-      "home": "CAN"
+      "home": "CAN",
+      "away": "MAR"
+    },
+    "89": {
+      "home": "PAR"
     },
     "91": {
       "home": "BRA"
