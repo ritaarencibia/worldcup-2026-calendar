@@ -4,13 +4,9 @@ name: Update results
 # finish (CEST 18:00 → ~08:00). Cron is in UTC (CEST = UTC+2).
 on:
   schedule:
-    - cron: '0 20 * * *'   # 22:00 CEST —  
     - cron: '0 21 * * *'   # 23:00 CEST — evening matches done
-    - cron: '0 22 * * *'   # 00:00 CEST — 
-    - cron: '0 23 * * *'   # 01:00 CEST — 
     - cron: '0 1 * * *'    # 03:00 CEST — late-night matches
-    - cron: '0 3 * * *'    # 05:00 CEST — late-night matches (2)
-    - cron: '0 7 * * *'    # 09:00 CEST — guarantees the full matchday
+    - cron: '0 7 * * *'    # 10:00 CEST — guarantees the full matchday
   workflow_dispatch: {}     # manual "Run workflow" button
 
 permissions:
