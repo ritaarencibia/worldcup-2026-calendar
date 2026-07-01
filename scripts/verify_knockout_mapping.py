@@ -14,7 +14,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from fetch_results import (  # noqa: E402
     parse_slot, code_slots_from_standings, third_tokens_by_letter, match_for_teams,
-    propagate_knockout,
+    propagate_knockout, seed_from_boxes,
 )
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -150,4 +150,36 @@ ok = check("penalty winner MAR advances into box 91 (W78 side)",
 print("checked penalty-shootout propagation for box 78 -> 91")
 
 print("OK: knockout resolution propagates partial + penalty winners" if ok else "MISMATCHES FOUND")
+
+# --- Later-round box must not clobber an R32 pairing ------------------------
+# A group winner meeting a 3rd-placed team in the Round of 16 has the same group-
+# position signature as an R32 3rd-place fixture, because the R32 token is multi-
+# group. Real 2026 case: R32 match 77 = 1I(France) v 3CDFGH(Sweden, 3F); in the
+# R16 the winner of 77 (France) meets Paraguay (3D), whose letter D ALSO sits in
+# the 3CDFGH token. Both boxes resolve to 77 by position, so the later R16 box
+# would overwrite France v Sweden with France v Paraguay (and strand the 3-0
+# score) unless seeding skips a team already placed in its R32 slot.
+CLOBBER_STANDINGS = {
+    "D": [{"code": "USA", "pos": 1}, {"code": "AUS", "pos": 2}, {"code": "PAR", "pos": 3}],
+    "E": [{"code": "GER", "pos": 1}, {"code": "POL", "pos": 2}, {"code": "JPN", "pos": 3}],
+    "F": [{"code": "NED", "pos": 1}, {"code": "JPN", "pos": 2}, {"code": "SWE", "pos": 3}],
+    "I": [{"code": "FRA", "pos": 1}, {"code": "NOR", "pos": 2}, {"code": "SEN", "pos": 3}],
+}
+cs = code_slots_from_standings(CLOBBER_STANDINGS)
+tbl = third_tokens_by_letter(ko_index)
+# Document order: Round of 32 boxes first, then the Round of 16 box.
+box_teams = [
+    ("GER", "PAR"),   # R32 match 74 = 1E v 3ABCDF (Germany v Paraguay)
+    ("FRA", "SWE"),   # R32 match 77 = 1I v 3CDFGH (France v Sweden)
+    ("PAR", "FRA"),   # R16 match 89 = W74 v W77 — must NOT be seeded as 77
+]
+seeded = seed_from_boxes(box_teams, ko_index, cs, tbl)
+ok = check("R32 match 77 keeps France v Sweden",
+           seeded.get("77") == {"home": "FRA", "away": "SWE"}) and ok
+ok = check("R32 match 74 keeps Germany v Paraguay",
+           seeded.get("74") == {"home": "GER", "away": "PAR"}) and ok
+ok = check("R16 France v Paraguay box did not clobber match 77",
+           "PAR" not in seeded.get("77", {}).values()) and ok
+print("checked later-round box does not clobber an R32 pairing")
+
 sys.exit(0 if ok else 1)

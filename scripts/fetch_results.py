@@ -219,6 +219,34 @@ def match_for_teams(hc, ac, ko_index, code_slot, third_by_letter):
     return None
 
 
+def seed_from_boxes(box_teams, ko_index, code_slot, third_by_letter):
+    """Map each knockout box (two real team codes) to its fixture number from the
+    teams' group positions. `box_teams` MUST be in document order.
+
+    Document order is load-bearing: the knockout article lists the rounds
+    top-to-bottom (Round of 32, then 16, quarter-finals, ...) and every team
+    enters at the Round of 32, so the FIRST box a team appears in is its Round-of-
+    32 fixture. A later round can reproduce the very same *slot pattern*: a group
+    winner meeting a 3rd-placed team in the Round of 16 (e.g. 1I=France v
+    3D=Paraguay) is, by group position alone, indistinguishable from the R32
+    fixture '1I v 3CDFGH' — because that multi-group 3rd token also admits a
+    D-group third, just as it admits the real occupant (3F=Sweden). Seeding that
+    recurrence would clobber the genuine R32 pairing. So once a team has been
+    seeded we skip any further box that reuses it: its R32 slot is already fixed,
+    and the later rounds are filled by winner-propagation, not by these boxes."""
+    resolved = {}
+    seeded = set()  # team codes already placed in their Round-of-32 fixture
+    for hc, ac in box_teams:
+        if hc in seeded or ac in seeded:
+            continue
+        num = match_for_teams(hc, ac, ko_index, code_slot, third_by_letter)
+        if num:
+            resolved[str(num)] = {"home": hc, "away": ac}
+            seeded.add(hc)
+            seeded.add(ac)
+    return resolved
+
+
 def winner_code(num, resolved, results):
     """Real code of the team that won knockout match `num`, or None if it isn't
     decided yet. Reads the resolved teams plus the scored result. A clear score
@@ -447,12 +475,11 @@ def main():
         warnings.append(f"knockout fetch/parse failed: {exc} (bracket left to standings)")
 
     # Seed the 3rd-place fixtures (and any group fixture) straight from the boxes:
-    # match_for_teams reads both teams off the box, so the 3rd-place side it can't
-    # be computed from standings is captured here.
-    for hc, ac in box_teams:
-        num = match_for_teams(hc, ac, ko_index, code_slot, third_by_letter)
-        if num:
-            resolved[str(num)] = {"home": hc, "away": ac}
+    # match_for_teams reads both teams off the box, so the 3rd-place side that
+    # can't be computed from standings is captured here. box_teams is in document
+    # order (rounds top-to-bottom), which seed_from_boxes relies on to keep a
+    # later-round box from clobbering an R32 pairing (see its docstring).
+    resolved.update(seed_from_boxes(box_teams, ko_index, code_slot, third_by_letter))
 
     propagate_knockout(ko_matches, slot_code, resolved, results, box_score,
                        box_pen_winner)
