@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-03T09:54:04Z",
+  "updatedAt": "2026-07-03T21:59:03Z",
   "results": {
     "1": {
       "status": "finished",
@@ -427,6 +427,12 @@
       "status": "finished",
       "home": 2,
       "away": 0
+    },
+    "88": {
+      "status": "finished",
+      "home": 1,
+      "away": 1,
+      "penWinner": "EGY"
     }
   },
   "standings": {
@@ -1119,6 +1125,9 @@
     "94": {
       "home": "USA",
       "away": "BEL"
+    },
+    "95": {
+      "away": "EGY"
     },
     "96": {
       "home": "SUI"
