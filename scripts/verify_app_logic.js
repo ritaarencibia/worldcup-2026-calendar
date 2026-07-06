@@ -70,8 +70,8 @@ const cases = [
   ['All four ON (= old behaviour)', count(ALL_ON), 57],
   ['None ON (show all)', count(NONE), 104],
   ['Only My teams, no favorites', count({ ...NONE, myTeams: true }), 0],
-  // ESP: 3 group matches + its resolved Round-of-32 tie (match 84).
-  ['Only My teams + ESP favorite (group + resolved KO)', count({ ...NONE, myTeams: true }, new Set(['ESP'])), 4],
+  // ESP: 3 group matches + resolved Round-of-32 (match 84) + Round-of-16 (match 93).
+  ['Only My teams + ESP favorite (group + resolved KO)', count({ ...NONE, myTeams: true }, new Set(['ESP'])), 5],
   ['Only Key knockouts', count({ ...NONE, keyKnockouts: true }), 8],
 ];
 
