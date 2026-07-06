@@ -66,12 +66,21 @@ function count(filters, fav = new Set()) {
 const ALL_ON = { myTeams: true, goodHours: true, keyKnockouts: true, weekendRescue: true };
 const NONE = { myTeams: false, goodHours: false, keyKnockouts: false, weekendRescue: false };
 
+// Independent oracle: matches ESP plays in (group + any resolved KO tie).
+// Derived from the data so the assertion tracks ESP's run instead of a magic
+// number that goes stale each round (R32 -> R16 -> QF -> ...).
+const espMatches = MATCHES.filter((m) => {
+  const c = resolvedCodes(m);
+  return c.home === 'ESP' || c.away === 'ESP';
+}).length;
+
 const cases = [
   ['All four ON (= old behaviour)', count(ALL_ON), 57],
   ['None ON (show all)', count(NONE), 104],
   ['Only My teams, no favorites', count({ ...NONE, myTeams: true }), 0],
-  // ESP: 3 group matches + resolved Round-of-32 (match 84) + Round-of-16 (match 93).
-  ['Only My teams + ESP favorite (group + resolved KO)', count({ ...NONE, myTeams: true }, new Set(['ESP'])), 5],
+  // "My teams + favorite ESP" must return exactly the matches ESP is in —
+  // proves the union logic routes myTeams to the favorite predicate only.
+  ['Only My teams + ESP favorite (group + resolved KO)', count({ ...NONE, myTeams: true }, new Set(['ESP'])), espMatches],
   ['Only Key knockouts', count({ ...NONE, keyKnockouts: true }), 8],
 ];
 
