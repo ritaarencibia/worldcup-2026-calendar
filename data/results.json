@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-09T22:15:03Z",
+  "updatedAt": "2026-07-10T21:53:04Z",
   "results": {
     "1": {
       "status": "finished",
@@ -489,6 +489,11 @@
       "status": "finished",
       "home": 2,
       "away": 0
+    },
+    "98": {
+      "status": "finished",
+      "home": 2,
+      "away": 1
     }
   },
   "standings": {
@@ -1207,7 +1212,8 @@
       "away": "SUI"
     },
     "101": {
-      "home": "FRA"
+      "home": "FRA",
+      "away": "ESP"
     }
   }
 }
