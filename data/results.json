@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-07-14T21:50:03Z",
+  "updatedAt": "2026-07-15T21:50:14Z",
   "results": {
     "1": {
       "status": "finished",
@@ -508,6 +508,11 @@
     "101": {
       "status": "finished",
       "home": 0,
+      "away": 2
+    },
+    "102": {
+      "status": "finished",
+      "home": 1,
       "away": 2
     }
   },
@@ -1235,7 +1240,8 @@
       "away": "ARG"
     },
     "104": {
-      "home": "ESP"
+      "home": "ESP",
+      "away": "ARG"
     }
   }
 }
