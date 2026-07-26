@@ -3,10 +3,10 @@ name: Update results
 # Refresh results + standings a few times a day, within the window when matches
 # finish (CEST 18:00 → ~08:00). Cron is in UTC (CEST = UTC+2).
 on:
-  schedule:
-    - cron: '0 21 * * *'   # 23:00 CEST — evening matches done
-    - cron: '0 1 * * *'    # 03:00 CEST — late-night matches
-    - cron: '0 7 * * *'    # 10:00 CEST — guarantees the full matchday
+  #schedule:
+  #  - cron: '0 21 * * *'   # 23:00 CEST — evening matches done
+  #  - cron: '0 1 * * *'    # 03:00 CEST — late-night matches
+  #  - cron: '0 7 * * *'    # 10:00 CEST — guarantees the full matchday
   workflow_dispatch: {}     # manual "Run workflow" button
 
 permissions:
